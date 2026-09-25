@@ -12,6 +12,8 @@ from rag_phy.config.loader import (
     LoggingConfig,
     ModelsConfig,
     NumericalConfig,
+    ObjectiveConfig,
+    OptimizationConfig,
     OrchestrationConfig,
     PhysicsConfig,
     VectorStoreConfig,
@@ -20,6 +22,7 @@ from rag_phy.config.loader import (
     load_knowledge_config,
     load_models_config,
     load_orchestration_config,
+    load_optimization_config,
     load_physics_config,
 )
 
@@ -35,6 +38,8 @@ __all__ = [
     "LoggingConfig",
     "ModelsConfig",
     "NumericalConfig",
+    "ObjectiveConfig",
+    "OptimizationConfig",
     "OrchestrationConfig",
     "PhysicsConfig",
     "VectorStoreConfig",
@@ -43,5 +48,6 @@ __all__ = [
     "load_knowledge_config",
     "load_models_config",
     "load_orchestration_config",
+    "load_optimization_config",
     "load_physics_config",
 ]

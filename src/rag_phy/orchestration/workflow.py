@@ -49,6 +49,7 @@ class WorkflowState(TypedDict, total=False):
     design_goal: str
     seed_candidate: DesignCandidate
     seed_consumed: bool
+    single_candidate: bool
     current_candidate: DesignCandidate
     performance_result: CycleResult
     critique_result: CritiqueResult
@@ -110,6 +111,7 @@ class DesignWorkflow:
         self,
         design_goal: str,
         initial_candidate: DesignCandidate | None = None,
+        single_candidate: bool = False,
     ) -> WorkflowState:
         """Execute the graph, optionally starting from an optimizer-sampled candidate."""
         if not design_goal.strip():
@@ -122,6 +124,7 @@ class DesignWorkflow:
             "trial_history": [],
             "transition_history": [],
             "status": "running",
+            "single_candidate": single_candidate,
         }
         if initial_candidate is not None:
             initial_state["seed_candidate"] = initial_candidate
@@ -223,7 +226,11 @@ class DesignWorkflow:
         critique = self._critique_agent.critique(
             state["current_candidate"], state["performance_result"]
         )
-        event = "Critique approved with citations" if critique.valid else "Critique rejected candidate"
+        event = (
+            "Critique approved with citations"
+            if critique.valid
+            else "Critique rejected candidate"
+        )
         return self._update(state, "critique", event, critique_result=critique)
 
     def _revise(self, state: WorkflowState) -> WorkflowState:
@@ -278,6 +285,16 @@ class DesignWorkflow:
         else:
             best_values = {}
 
+        if state.get("single_candidate", False):
+            return self._update(
+                state,
+                "optimizer_step",
+                "Completed one optimizer-sampled candidate evaluation",
+                **best_values,
+                status="candidate_evaluated",
+                stop_reason="single-candidate evaluation completed",
+            )
+
         if previous_best is not None:
             improvement = max(0.0, score - previous_best)
             if improvement <= self._config.convergence_tolerance:
@@ -312,6 +329,8 @@ class DesignWorkflow:
 
     def _route_after_revision(self, state: WorkflowState) -> str:
         """Route revision exhaustion through an explicit terminal graph node."""
+        if state.get("single_candidate", False):
+            return "converge"
         if state["invalid_revision_count"] >= self._config.max_invalid_revisions:
             return "converge"
         if state["iteration_count"] >= self._config.max_iterations:
@@ -326,7 +345,10 @@ class DesignWorkflow:
 
     def _converge(self, state: WorkflowState) -> WorkflowState:
         """Set terminal status after an exhausted revision branch or score convergence."""
-        if state.get("status") not in {"converged", "max_iterations"}:
+        if state.get("status") == "candidate_evaluated":
+            status = "candidate_evaluated"
+            reason = state.get("stop_reason", "single-candidate evaluation completed")
+        elif state.get("status") not in {"converged", "max_iterations"}:
             if state.get("invalid_revision_count", 0) >= self._config.max_invalid_revisions:
                 status = "max_invalid_revisions"
                 reason = "invalid revision limit reached"

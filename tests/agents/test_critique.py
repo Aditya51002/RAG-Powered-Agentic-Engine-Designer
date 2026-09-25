@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from rag_phy.agents import CritiqueAgent, DesignCandidate
 from rag_phy.config import load_agent_prompts_config, load_models_config
 from rag_phy.knowledge import (
@@ -108,6 +110,7 @@ def test_excess_temperature_is_rejected_and_constraint_is_cited() -> None:
     assert any("exceeds TEST_ALLOY_ALPHA maximum service temperature 1200 K" in item
                for item in critique.constraint_violations)
     assert "synthetic-test-record-alpha" in critique.cited_sources
+    assert critique.normalized_violation_severity == pytest.approx(100 / 1200)
     assert "validity_is_determined_by_code" in explainer.prompts[0]
     assert critique.reasoning == "This design is valid and safe."
 

@@ -10,6 +10,7 @@ from rag_phy.config import (
     load_knowledge_config,
     load_models_config,
     load_orchestration_config,
+    load_optimization_config,
     load_physics_config,
 )
 
@@ -29,6 +30,14 @@ def test_load_orchestration_limits_from_yaml() -> None:
     assert config.max_iterations == 8
     assert config.max_invalid_revisions == 3
     assert config.convergence_tolerance == 0.001
+
+
+def test_load_optimization_objective_and_study_config() -> None:
+    config = load_optimization_config("config/optimization.yaml")
+
+    assert config.trial_count == 12
+    assert config.objective.thrust_to_weight_weight == 1.0
+    assert config.objective.specific_fuel_consumption_reference_kg_per_n_s == 0.0000332
 
 
 def test_load_config_reads_yaml_into_typed_settings(tmp_path: Path) -> None:

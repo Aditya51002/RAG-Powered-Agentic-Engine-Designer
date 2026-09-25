@@ -1,0 +1,16 @@
+trial_count: 12
+random_seed: 23
+objective:
+  thrust_to_weight_weight: 1.0
+  specific_fuel_consumption_weight: 1.0
+  thrust_to_weight_reference: 1.0
+  specific_fuel_consumption_reference_kg_per_n_s: 0.0000332
+  invalid_base_penalty: 1.0
+  invalid_severity_penalty_weight: 1.0
+  signature_decimal_places: 6
+
+# Starting policy assumptions: the objective weights are equal preference weights,
+# both penalty coefficients are score-space tuning knobs, and the T/W reference is
+# unity. The SFC scale comes from the NPTEL Lecture 11 worked cycle regression test:
+# config/physics_bounds.yaml cites that source; do not treat it as a production target.
+# Search ranges and engine weight estimates must be supplied from verified project data.

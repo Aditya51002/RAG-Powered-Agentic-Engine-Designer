@@ -140,6 +140,39 @@ class OrchestrationConfig(BaseModel):
     convergence_tolerance: float = Field(ge=0, allow_inf_nan=False)
 
 
+class ObjectiveConfig(BaseModel):
+    """Normalized thrust-to-weight/SFC tradeoff and invalid-design penalty settings."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    thrust_to_weight_weight: float = Field(ge=0, allow_inf_nan=False)
+    specific_fuel_consumption_weight: float = Field(ge=0, allow_inf_nan=False)
+    thrust_to_weight_reference: float = Field(gt=0, allow_inf_nan=False)
+    specific_fuel_consumption_reference_kg_per_n_s: float = Field(
+        gt=0, allow_inf_nan=False
+    )
+    invalid_base_penalty: float = Field(gt=0, allow_inf_nan=False)
+    invalid_severity_penalty_weight: float = Field(gt=0, allow_inf_nan=False)
+    signature_decimal_places: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def validate_objective_weights(self) -> ObjectiveConfig:
+        """Require at least one objective to contribute to the valid-design score."""
+        if self.thrust_to_weight_weight + self.specific_fuel_consumption_weight <= 0:
+            raise ValueError("At least one objective weight must be positive")
+        return self
+
+
+class OptimizationConfig(BaseModel):
+    """Optuna study controls and scalar engineering objective configuration."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    trial_count: int = Field(gt=0)
+    random_seed: int
+    objective: ObjectiveConfig
+
+
 class DesignAgentConfig(BaseModel):
     """Prompt and bounded proposal controls for the design agent."""
 
@@ -308,6 +341,18 @@ def load_orchestration_config(path: str | Path) -> OrchestrationConfig:
     return OrchestrationConfig.model_validate(_load_yaml_mapping(path))
 
 
+def load_optimization_config(path: str | Path) -> OptimizationConfig:
+    """Load validated Optuna study and objective settings from YAML.
+
+    Args:
+        path: YAML settings file for the scalar objective and study controls.
+
+    Returns:
+        Validated optimization configuration.
+    """
+    return OptimizationConfig.model_validate(_load_yaml_mapping(path))
+
+
 def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
     """Read one YAML mapping and wrap syntax or shape errors consistently."""
     config_path = Path(path)
@@ -333,6 +378,8 @@ __all__ = [
     "LoggingConfig",
     "ModelsConfig",
     "NumericalConfig",
+    "ObjectiveConfig",
+    "OptimizationConfig",
     "OrchestrationConfig",
     "PhysicsConfig",
     "VectorStoreConfig",
@@ -342,5 +389,6 @@ __all__ = [
     "load_knowledge_config",
     "load_models_config",
     "load_orchestration_config",
+    "load_optimization_config",
     "load_physics_config",
 ]

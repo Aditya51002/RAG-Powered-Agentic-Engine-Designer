@@ -7,7 +7,7 @@ import logging
 from dataclasses import asdict
 from typing import Protocol, Sequence
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from rag_phy.agents.design import DesignCandidate
 from rag_phy.config import CritiqueAgentConfig, ModelsConfig
@@ -32,6 +32,7 @@ class CritiqueResult(BaseModel):
     reasoning: str
     cited_sources: tuple[str, ...]
     constraint_violations: tuple[str, ...]
+    normalized_violation_severity: float = Field(default=0.0, ge=0, allow_inf_nan=False)
 
 
 class CritiqueExplainer(Protocol):
@@ -84,6 +85,7 @@ class CritiqueAgent:
             CritiqueExplanationError: If the injected explanation service fails or is empty.
         """
         violations: list[str] = []
+        normalized_severity = 0.0
         source_ids: list[str] = []
         material = None
         try:
@@ -93,6 +95,9 @@ class CritiqueAgent:
             source_ids.append(material.source_id)
             limit_k = material.max_service_temperature_k
             if candidate.turbine_inlet_temperature_k > limit_k:
+                normalized_severity = (
+                    candidate.turbine_inlet_temperature_k - limit_k
+                ) / limit_k
                 violations.append(
                     f"Turbine inlet temperature {candidate.turbine_inlet_temperature_k:g} K "
                     f"exceeds {material.material_name} maximum service temperature "
@@ -137,6 +142,7 @@ class CritiqueAgent:
             reasoning=reasoning,
             cited_sources=cited_sources,
             constraint_violations=tuple(violations),
+            normalized_violation_severity=normalized_severity,
         )
         logger.info(
             "Design critique completed",

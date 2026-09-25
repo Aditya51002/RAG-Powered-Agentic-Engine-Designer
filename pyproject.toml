@@ -28,6 +28,10 @@ embeddings = [
 orchestration = [
     "langgraph>=0.2,<2",
 ]
+optimization = [
+    "langgraph>=0.2,<2",
+    "optuna>=4.0,<6",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
