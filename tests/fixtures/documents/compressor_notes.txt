@@ -1,0 +1,1 @@
+SYNTHETIC TEST FIXTURE. A compressor increases the total pressure of the working fluid.

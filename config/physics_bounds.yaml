@@ -1,0 +1,24 @@
+working_fluid: Air
+fuel_lower_heating_value_j_per_kg: 43000000
+temperature_min_k: 60
+temperature_max_k: 2000
+pressure_max_pa: 2000000000
+combustor_pressure_loss_fraction: 0.04
+component_efficiencies:
+  intake: 0.93
+  compressor: 0.87
+  combustor: 0.98
+  turbine: 0.90
+  mechanical: 0.99
+  nozzle: 0.95
+numerics:
+  root_pressure_tolerance_pa: 0.1
+  root_max_iterations: 128
+
+# Source for the benchmark conditions/efficiencies and worked station outputs:
+# IIT Bombay, NPTEL Introduction to Aerospace Propulsion, Lecture 11, Problem 1.
+# https://archive.nptel.ac.in/content/storage2/courses/101101002/downloads/Lect-11.pdf
+# The fuel heating value is 43 MJ/kg from IIT Bombay, NPTEL Lecture 34, Problem 1.
+# Source PDF: https://courseware.cutm.ac.in/wp-content/uploads/2020/06/Thrust-and-efficiency.pdf
+# CoolProp Air EOS range (60-2000 K, pressure up to 2000 MPa): Lemmon et al. (2000),
+# https://doi.org/10.1063/1.1285884

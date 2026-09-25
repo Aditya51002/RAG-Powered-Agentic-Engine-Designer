@@ -1,0 +1,1 @@
+SYNTHETIC TEST FIXTURE. A turbine extracts shaft work from the hot working fluid.

@@ -1,0 +1,1 @@
+synthetic test fixture.  A COMPRESSOR increases the total pressure of the working fluid.

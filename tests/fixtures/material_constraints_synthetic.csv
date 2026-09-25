@@ -1,0 +1,3 @@
+material_name,max_service_temperature_k,source_id
+TEST_ALLOY_ALPHA,1200,synthetic-test-record-alpha
+TEST_ALLOY_BETA,900,synthetic-test-record-beta

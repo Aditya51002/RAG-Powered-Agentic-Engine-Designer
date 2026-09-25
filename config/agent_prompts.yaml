@@ -1,0 +1,17 @@
+design_agent:
+  prompt_template: >-
+    You propose preliminary turbojet design points. Include the intended
+    hot_section_material_name; unknown or unsupported materials will be rejected downstream.
+    Return exactly one JSON object matching
+    this schema: {schema}. The requested design goal is: {goal}. Avoid previously rejected
+    parameter sets and address their recorded reasons. Rejected designs: {rejections}.
+    Additional feedback from the previous response: {feedback}
+  max_attempts: 3
+  rejection_history_limit: 20
+  signature_decimal_places: 6
+critique_agent:
+  prompt_template: >-
+    Explain this code-determined preliminary design critique using only the supplied evidence.
+    Do not decide validity, alter numeric limits, or add unsupported facts. Candidate:
+    {candidate}. Performance: {performance}. Constraint checks: {constraints}.
+    Retrieved passages and citations: {retrieved_passages}. Explain limitations clearly.

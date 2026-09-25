@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-phy"
+version = "0.1.0"
+description = "Grounded preliminary jet-engine design-space exploration prototype"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7,<3",
+    "PyYAML>=6.0,<7",
+    "CoolProp>=6.6,<8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9",
+    "hypothesis>=6.100,<7",
+]
+knowledge = [
+    "chromadb>=1.0,<2",
+    "PyMuPDF>=1.24,<2",
+]
+embeddings = [
+    "sentence-transformers>=3.0,<6",
+]
+orchestration = [
+    "langgraph>=0.2,<2",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

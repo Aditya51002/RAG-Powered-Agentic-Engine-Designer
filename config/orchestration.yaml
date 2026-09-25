@@ -1,0 +1,3 @@
+max_iterations: 8
+max_invalid_revisions: 3
+convergence_tolerance: 0.001
