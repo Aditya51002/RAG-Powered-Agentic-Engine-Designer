@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+import uuid
 from dataclasses import dataclass
 from typing import Any, Protocol, TypedDict
 
@@ -20,6 +21,7 @@ from rag_phy.agents import (
 from rag_phy.config import OrchestrationConfig, PhysicsConfig
 from rag_phy.physics.cycle import simulate_cycle
 from rag_phy.physics.models import CycleInput, CycleResult
+from rag_phy.orchestration.tracing import WorkflowTraceSink, new_trace_event
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,8 @@ class WorkflowState(TypedDict, total=False):
     status: str
     stop_reason: str
     transition_history: list[WorkflowEvent]
+    trace_id: str
+    last_span_id: str
 
 
 class CycleSimulator(Protocol):
@@ -92,6 +96,7 @@ class DesignWorkflow:
         scorer: CandidateScorer,
         orchestration_config: OrchestrationConfig,
         simulator: CycleSimulator = simulate_cycle,
+        trace_sink: WorkflowTraceSink | None = None,
     ) -> None:
         """Bind injectable components and compile the named state graph."""
         self._design_agent = design_agent
@@ -100,6 +105,7 @@ class DesignWorkflow:
         self._scorer = scorer
         self._config = orchestration_config
         self._simulator = simulator
+        self._trace_sink = trace_sink
         self._graph = self._compile_graph()
 
     @property
@@ -125,6 +131,7 @@ class DesignWorkflow:
             "transition_history": [],
             "status": "running",
             "single_candidate": single_candidate,
+            "trace_id": uuid.uuid4().hex,
         }
         if initial_candidate is not None:
             initial_state["seed_candidate"] = initial_candidate
@@ -383,6 +390,16 @@ class DesignWorkflow:
                 message,
             ),
         ]
+        if self._trace_sink is not None:
+            trace_event = new_trace_event(
+                state.get("trace_id", ""),
+                state.get("last_span_id"),
+                node,
+                int(values.get("iteration_count", state.get("iteration_count", 0))),
+                message,
+            )
+            self._trace_sink.emit(trace_event)
+            update["last_span_id"] = trace_event.span_id
         logger.info(
             "Workflow transition",
             extra={

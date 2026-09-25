@@ -17,3 +17,16 @@ __all__ = [
     "WorkflowEvent",
     "WorkflowState",
 ]
+"""LangGraph orchestration and optional workflow tracing."""
+
+from rag_phy.orchestration.tracing import JsonlTraceSink, WorkflowTraceEvent, WorkflowTraceSink
+from rag_phy.orchestration.workflow import DesignWorkflow, WorkflowEvent, WorkflowState
+
+__all__ = [
+    "DesignWorkflow",
+    "JsonlTraceSink",
+    "WorkflowEvent",
+    "WorkflowState",
+    "WorkflowTraceEvent",
+    "WorkflowTraceSink",
+]

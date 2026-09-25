@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+from typing import Any
 
 from rag_phy.agents import CritiqueResult, DesignCandidate
 from rag_phy.config import load_orchestration_config, load_physics_config
 from rag_phy.orchestration.workflow import DesignWorkflow
+from rag_phy.orchestration.tracing import JsonlTraceSink
 from rag_phy.physics.models import CycleResult
 
 
@@ -75,6 +78,7 @@ def _workflow(
     max_iterations: int = 6,
     max_invalid_revisions: int = 2,
     tolerance: float = 0.001,
+    trace_sink: Any = None,
 ) -> DesignWorkflow:
     """Build the production graph around isolated synthetic nodes and configs."""
     root = Path(__file__).parents[2]
@@ -93,6 +97,7 @@ def _workflow(
             }
         ),
         simulator=lambda inputs, config: _performance(),
+        trace_sink=trace_sink,
     )
 
 
@@ -150,3 +155,21 @@ def test_graph_has_explicit_workflow_nodes() -> None:
 
     node_names = set(workflow.graph.get_graph().nodes)
     assert {"propose", "simulate", "critique", "revise", "score", "optimizer_step"} <= node_names
+
+
+def test_jsonl_trace_sink_records_correlated_workflow_transitions(tmp_path: Path) -> None:
+    trace_path = tmp_path / "trace" / "workflow.jsonl"
+    design = SequenceDesignAgent([_candidate(5.0)])
+    workflow = _workflow(
+        design,
+        SequenceCritiqueAgent(valid=True),
+        trace_sink=JsonlTraceSink(trace_path),
+    )
+
+    result = workflow.invoke("trace a synthetic workflow")
+
+    events = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+    assert len(events) == len(result["transition_history"])
+    assert len({event["trace_id"] for event in events}) == 1
+    assert events[0]["parent_span_id"] is None
+    assert events[1]["parent_span_id"] == events[0]["span_id"]

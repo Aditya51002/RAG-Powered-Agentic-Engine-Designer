@@ -173,6 +173,25 @@ class OptimizationConfig(BaseModel):
     objective: ObjectiveConfig
 
 
+class EvaluationConfig(BaseModel):
+    """Evaluation dataset, reports, and persistent workflow trace paths."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    qa_dataset_path: Path
+    report_directory: Path
+    trace_jsonl_path: Path
+    ragas_metric_names: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_metric_names(self) -> EvaluationConfig:
+        if any(not name.strip() for name in self.ragas_metric_names):
+            raise ValueError("ragas_metric_names must contain non-empty names")
+        if len(set(self.ragas_metric_names)) != len(self.ragas_metric_names):
+            raise ValueError("ragas_metric_names must be unique")
+        return self
+
+
 class DesignAgentConfig(BaseModel):
     """Prompt and bounded proposal controls for the design agent."""
 
@@ -353,6 +372,18 @@ def load_optimization_config(path: str | Path) -> OptimizationConfig:
     return OptimizationConfig.model_validate(_load_yaml_mapping(path))
 
 
+def load_evaluation_config(path: str | Path) -> EvaluationConfig:
+    """Load evaluation dataset, report, and tracing paths from YAML.
+
+    Args:
+        path: YAML evaluation configuration file.
+
+    Returns:
+        Validated evaluation configuration.
+    """
+    return EvaluationConfig.model_validate(_load_yaml_mapping(path))
+
+
 def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
     """Read one YAML mapping and wrap syntax or shape errors consistently."""
     config_path = Path(path)
@@ -372,6 +403,7 @@ __all__ = [
     "ChunkingConfig",
     "ComponentEfficiencies",
     "EmbeddingConfig",
+    "EvaluationConfig",
     "DesignAgentConfig",
     "CritiqueAgentConfig",
     "KnowledgeConfig",
@@ -385,6 +417,7 @@ __all__ = [
     "VectorStoreConfig",
     "ValidationError",
     "load_config",
+    "load_evaluation_config",
     "load_agent_prompts_config",
     "load_knowledge_config",
     "load_models_config",

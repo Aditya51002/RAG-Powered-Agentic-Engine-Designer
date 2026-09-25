@@ -1,0 +1,8 @@
+# Populate the QA artifact only with independently verified, source-grounded cases.
+qa_dataset_path: data/evaluation/qa_set.json
+report_directory: reports/evaluation
+trace_jsonl_path: reports/traces/workflow.jsonl
+ragas_metric_names:
+  - context_precision
+  - context_recall
+  - faithfulness

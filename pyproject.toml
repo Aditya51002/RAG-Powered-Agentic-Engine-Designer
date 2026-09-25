@@ -32,6 +32,10 @@ optimization = [
     "langgraph>=0.2,<2",
     "optuna>=4.0,<6",
 ]
+evaluation = [
+    "ragas>=0.4,<0.5",
+    "matplotlib>=3.8,<4",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

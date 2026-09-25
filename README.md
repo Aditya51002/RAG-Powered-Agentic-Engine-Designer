@@ -4,7 +4,7 @@ A grounded, software-only decision-support prototype for preliminary jet-engine 
 
 ## Current Phase
 
-Phase 0 provides the package skeleton, typed YAML/environment configuration, and shared structured logging. Phase 1 adds a deterministic single-spool turbojet cycle using CoolProp properties. Phase 2 adds document ingestion, dense retrieval, and a source-required material constraint store. Phase 3 adds an offline-testable, schema-validated design proposal agent. Phase 4 adds code-determined, citation-required design critique. Phase 5 wires these components into a bounded LangGraph workflow. Phase 6 adds a configurable Optuna objective and incremental Pareto frontier.
+Phase 0 provides the package skeleton, typed YAML/environment configuration, and shared structured logging. Phase 1 adds a deterministic single-spool turbojet cycle using CoolProp properties. Phase 2 adds document ingestion, dense retrieval, and a source-required material constraint store. Phase 3 adds an offline-testable, schema-validated design proposal agent. Phase 4 adds code-determined, citation-required design critique. Phase 5 wires these components into a bounded LangGraph workflow. Phase 6 adds a configurable Optuna objective and incremental Pareto frontier. Phase 7 adds versioned QA evaluation, source-ID retrieval precision/recall, RAGAS integration, optimizer validity curves, and workflow trace export.
 
 ## Setup
 
@@ -38,6 +38,12 @@ The initial application configuration is in `config/app.yaml`. `rag_phy.config.l
 `DesignObjective` scores valid candidates as `w_ttw * (T/W / T/W_reference) - w_sfc * (SFC / SFC_reference)`. Invalid candidates subtract `base_penalty + severity_weight * normalized_violation_severity`, preserving a graded penalty for numeric constraint exceedance rather than mapping every rejection to zero. `ParetoFrontier` incrementally tracks non-dominated valid candidates by maximizing T/W and minimizing SFC. `OptunaOptimizer` runs the actual Optuna study through Phase 5 in single-candidate mode and records citations and metrics on each trial.
 
 The optimizer requires injected `CandidateSampler` and `EngineWeightEstimator` implementations. No verified search ranges or engine weight model were supplied, so this repository deliberately does not invent them; the integration test uses synthetic ranges, performance, and weight only. The config's equal objective weights and penalty coefficients are initial policy assumptions to calibrate against the mission. Its SFC normalization reference is the NPTEL worked-cycle regression value, not a requirement or production target. A real study needs verified parameter bounds, a defensible weight estimator, and curated evidence.
+
+## Evaluation and Tracing
+
+`config/evaluation.yaml` selects `data/evaluation/qa_set.json`, RAGAS metrics, report location, and a JSONL trace path. The checked-in QA file is intentionally an empty versioned scaffold: no reviewed hand-labeled questions or immutable source-corpus revision were supplied, so there are no production retrieval precision/recall or RAGAS scores to report. See `data/evaluation/README.md` for the labeling contract. `evaluate_dataset` requires a target adapter that returns both its answer and the exact retrieved source IDs/passages; it computes macro source-level precision/recall and delegates answer/context scoring to `ConfiguredRagasBackend`. Install `.[evaluation]`, then inject a RAGAS-compatible evaluator LLM (and embeddings when required) to run those metrics.
+
+`cumulative_validity_rate` and `validity_observations_from_study` convert completed optimizer outcomes into cumulative rates; `save_validity_chart` writes a PNG. Pass `JsonlTraceSink(load_evaluation_config(...).trace_jsonl_path)` to `DesignWorkflow` to persist one correlated span event for each graph transition. The sink interface can also be implemented by a hosted tracing backend such as Langfuse; local JSONL tracing needs no credentials. Evaluation tests use explicitly synthetic examples and are contract tests, not claims about retrieval performance or engineering validity.
 
 ## Physics Model
 
