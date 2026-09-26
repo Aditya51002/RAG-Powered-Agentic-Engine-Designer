@@ -82,12 +82,51 @@ def test_evaluation_reports_macro_source_id_precision_recall(tmp_path: Path) -> 
     assert report.retrieval_precision == pytest.approx(0.5)
     assert report.retrieval_recall == 1.0
     assert report.ragas_scores == {"faithfulness": 0.9}
+    assert report.answerable_case_count == 1
+    assert report.unanswerable_retrieval_empty_rate == 1.0
     output = tmp_path / "nested" / "report.json"
     save_evaluation_report(report, output)
     assert '"dataset_version": "test-v1"' in output.read_text(encoding="utf-8")
 
 
-def test_dataset_rejects_duplicate_case_ids_and_empty_relevant_source_ids() -> None:
+def test_evaluation_separates_unanswerable_retrieval_and_abstention() -> None:
+    dataset = LabeledQADataset(
+        dataset_version="test-v2",
+        cases=(
+            LabeledQACase(
+                id="answerable",
+                question="Synthetic question?",
+                reference_answer="Synthetic reference answer.",
+                relevant_source_ids=("test:relevant",),
+            ),
+            LabeledQACase(
+                id="unanswerable",
+                question="Out-of-corpus question?",
+                answerable=False,
+                reference_answer="Unanswerable",
+            ),
+        ),
+    )
+
+    class Target:
+        def answer(self, question: str) -> AnswerWithContexts:
+            if question == "Synthetic question?":
+                return SyntheticTarget().answer(question)
+            return AnswerWithContexts(
+                answer="Not answerable from the indexed corpus.",
+                retrieved_contexts=(),
+                abstained=True,
+            )
+
+    report = evaluate_dataset(dataset, Target(), SyntheticRagasBackend())
+
+    assert report.case_count == 2
+    assert report.answerable_case_count == 1
+    assert report.unanswerable_retrieval_empty_rate == 1.0
+    assert report.unanswerable_abstention_rate == 1.0
+
+
+def test_dataset_rejects_duplicate_case_ids_and_empty_answerable_sources() -> None:
     case = LabeledQACase(
         id="same",
         question="Question?",
@@ -96,12 +135,29 @@ def test_dataset_rejects_duplicate_case_ids_and_empty_relevant_source_ids() -> N
     )
     with pytest.raises(ValueError, match="unique"):
         LabeledQADataset(dataset_version="v1", cases=(case, case))
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="answerable cases require"):
         LabeledQACase(
             id="empty-source",
             question="Question?",
             reference_answer="Answer.",
-            relevant_source_ids=("",),
+        )
+
+
+def test_unanswerable_cases_must_have_explicit_abstention_and_no_sources() -> None:
+    with pytest.raises(ValueError, match="explicit abstention"):
+        LabeledQACase(
+            id="bad-unanswerable",
+            question="Out of corpus?",
+            answerable=False,
+            reference_answer="A made-up answer.",
+        )
+    with pytest.raises(ValueError, match="must not name"):
+        LabeledQACase(
+            id="bad-source",
+            question="Out of corpus?",
+            answerable=False,
+            reference_answer="Unanswerable",
+            relevant_source_ids=("source:one",),
         )
 
 

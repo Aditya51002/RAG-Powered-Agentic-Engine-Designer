@@ -6,7 +6,15 @@ import json
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 
 class LabeledQACase(BaseModel):
@@ -16,8 +24,8 @@ class LabeledQACase(BaseModel):
 
     id: str = Field(min_length=1)
     question: str = Field(min_length=1)
-    reference_answer: str = Field(min_length=1)
     answerable: bool = True
+    reference_answer: str = Field(min_length=1)
     relevant_source_ids: tuple[str, ...] = ()
 
     @field_validator("relevant_source_ids")
@@ -29,23 +37,23 @@ class LabeledQACase(BaseModel):
 
     @field_validator("reference_answer")
     @classmethod
-    def validate_answerability(cls, value: str, info) -> str:
+    def validate_answerability(cls, value: str, info: ValidationInfo) -> str:
         answerable = info.data.get("answerable", True)
         if not answerable and value.strip().casefold() not in {
-            "unanswerable", "not answerable from the indexed corpus", ""
+            "unanswerable",
+            "not answerable from the indexed corpus",
+            "",
         }:
             raise ValueError("unanswerable cases must use an explicit abstention reference")
         return value
 
-    @field_validator("relevant_source_ids")
-    @classmethod
-    def validate_answerable_sources(cls, values: tuple[str, ...], info) -> tuple[str, ...]:
-        answerable = info.data.get("answerable", True)
-        if answerable and not values:
+    @model_validator(mode="after")
+    def validate_source_answerability(self) -> LabeledQACase:
+        if self.answerable and not self.relevant_source_ids:
             raise ValueError("answerable cases require at least one relevant source ID")
-        if not answerable and values:
+        if not self.answerable and self.relevant_source_ids:
             raise ValueError("unanswerable cases must not name supporting source IDs")
-        return values
+        return self
 
 
 class LabeledQADataset(BaseModel):
@@ -82,6 +90,7 @@ class AnswerWithContexts(BaseModel):
 
     answer: str = Field(min_length=1)
     retrieved_contexts: tuple[RetrievedContext, ...]
+    abstained: bool = False
 
 
 class RAGEvaluationTarget(Protocol):

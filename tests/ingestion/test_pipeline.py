@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import chromadb
 import pymupdf
@@ -117,3 +117,15 @@ def test_pdf_loader_preserves_page_level_source_references(tmp_path: Path) -> No
     assert len(documents) == 2
     assert documents[0].source_ref.endswith("#page=1")
     assert "page two" in documents[1].text
+
+
+def test_relative_document_path_produces_portable_source_reference(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    document_path = tmp_path / "source.md"
+    document_path.write_text("A source-grounded note.", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    loaded = DocumentLoader().load(Path("source.md"))
+
+    assert loaded[0].source_ref == "source.md"

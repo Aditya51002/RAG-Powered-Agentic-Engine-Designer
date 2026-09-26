@@ -18,7 +18,9 @@ numerics:
 # Source for the benchmark conditions/efficiencies and worked station outputs:
 # IIT Bombay, NPTEL Introduction to Aerospace Propulsion, Lecture 11, Problem 1.
 # https://archive.nptel.ac.in/content/storage2/courses/101101002/downloads/Lect-11.pdf
-# The fuel heating value is 43 MJ/kg from IIT Bombay, NPTEL Lecture 34, Problem 1.
-# Source PDF: https://courseware.cutm.ac.in/wp-content/uploads/2020/06/Thrust-and-efficiency.pdf
+# Historical source note claimed 43 MJ/kg from an NPTEL Lecture 34 problem, but the
+# linked supporting page has not been verified. Treat this as an unverified placeholder;
+# see KNOWN_ASSUMPTIONS.md. It is not a universal fuel property.
+# Previously linked page: https://courseware.cutm.ac.in/wp-content/uploads/2020/06/Thrust-and-efficiency.pdf
 # CoolProp Air EOS range (60-2000 K, pressure up to 2000 MPa): Lemmon et al. (2000),
 # https://doi.org/10.1063/1.1285884

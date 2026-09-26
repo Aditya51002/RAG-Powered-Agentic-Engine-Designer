@@ -14,6 +14,23 @@ def fixture_constraint_store() -> MaterialConstraintStore:
     return MaterialConstraintStore.from_csv(csv_path)
 
 
+def test_curated_source_backed_records_load_from_project_data() -> None:
+    csv_path = Path(__file__).parents[2] / "data" / "curated" / "material_constraints.csv"
+
+    store = MaterialConstraintStore.from_csv(csv_path)
+
+    assert store.get_material("Inconel 718 (bare)").max_service_temperature_k == pytest.approx(
+        977.594
+    )
+    assert store.get_material("Inconel 718 (cooled)").max_service_temperature_k == pytest.approx(
+        977.594
+    )
+    assert store.get_material("Ti-6Al-4V").source_id == "CARPENTER-TI6AL4V"
+    assert store.get_material("NASA SiC/SiC System A CMC").source_id == (
+        "NASA-TM-2006-20060054003"
+    )
+
+
 def test_exact_material_lookup_and_temperature_range_query() -> None:
     """Provide indexed case-insensitive exact lookup and sorted range results."""
     store = fixture_constraint_store()

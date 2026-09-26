@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 import logging
 import math
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Protocol, Sequence
+from typing import Any, ClassVar, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -32,6 +33,7 @@ class EvaluationReport(BaseModel):
     case_count: int = Field(gt=0)
     answerable_case_count: int = Field(gt=0)
     unanswerable_retrieval_empty_rate: float = Field(ge=0, le=1)
+    unanswerable_abstention_rate: float = Field(ge=0, le=1)
     retrieval_precision: float = Field(ge=0, le=1)
     retrieval_recall: float = Field(ge=0, le=1)
     ragas_scores: dict[str, float]
@@ -40,7 +42,7 @@ class EvaluationReport(BaseModel):
 class ConfiguredRagasBackend:
     """Optional RAGAS adapter using configured collections metrics and injected evaluator LLM."""
 
-    _METRICS = {
+    _METRICS: ClassVar[dict[str, str]] = {
         "context_precision": "ContextPrecision",
         "context_recall": "ContextRecall",
         "faithfulness": "Faithfulness",
@@ -96,6 +98,7 @@ def evaluate_dataset(
     precision_sum = 0.0
     recall_sum = 0.0
     unanswerable_empty_count = 0
+    unanswerable_abstention_count = 0
     unanswerable_count = 0
     for case in dataset.cases:
         output = target.answer(case.question)
@@ -117,6 +120,7 @@ def evaluate_dataset(
             precision_sum += float(not retrieved)
             unanswerable_count += 1
             unanswerable_empty_count += int(not retrieved)
+            unanswerable_abstention_count += int(output.abstained)
 
     if not samples:
         raise ValueError("RAGAS scoring requires at least one answerable case")
@@ -137,6 +141,9 @@ def evaluate_dataset(
         answerable_case_count=answerable_count,
         unanswerable_retrieval_empty_rate=(
             unanswerable_empty_count / unanswerable_count if unanswerable_count else 1.0
+        ),
+        unanswerable_abstention_rate=(
+            unanswerable_abstention_count / unanswerable_count if unanswerable_count else 1.0
         ),
         retrieval_precision=precision_sum / count,
         retrieval_recall=recall_sum / answerable_count,

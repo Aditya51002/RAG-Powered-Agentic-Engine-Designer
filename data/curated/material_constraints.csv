@@ -1,0 +1,5 @@
+material_name,max_service_temperature_k,source_id
+Inconel 718 (bare),977.594,NASA-CR-19690012409
+Inconel 718 (cooled),977.594,NASA-CR-19690012409
+Ti-6Al-4V,623.15,CARPENTER-TI6AL4V
+NASA SiC/SiC System A CMC,1723.15,NASA-TM-2006-20060054003
