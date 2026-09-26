@@ -4,14 +4,14 @@ import pytest
 from pydantic import ValidationError
 
 from rag_phy.config import (
-    load_agent_prompts_config,
     AppConfig,
+    load_agent_prompts_config,
     load_config,
+    load_evaluation_config,
     load_knowledge_config,
     load_models_config,
-    load_orchestration_config,
     load_optimization_config,
-    load_evaluation_config,
+    load_orchestration_config,
     load_physics_config,
 )
 
@@ -62,6 +62,19 @@ def test_load_config_reads_yaml_into_typed_settings(tmp_path: Path) -> None:
     assert isinstance(config, AppConfig)
     assert config.logging.level == "DEBUG"
     assert config.logging.json_output is False
+
+
+def test_load_app_dashboard_service_factory_from_yaml(tmp_path: Path) -> None:
+    config_file = tmp_path / "app.yaml"
+    config_file.write_text(
+        "logging:\n  level: INFO\n  json: true\n"
+        "dashboard:\n  service_factory: sample.runtime:create_service\n",
+        encoding="utf-8",
+    )
+
+    config = load_config(config_file, environ={})
+
+    assert config.dashboard.service_factory == "sample.runtime:create_service"
 
 
 def test_environment_override_is_applied_by_loader(tmp_path: Path) -> None:

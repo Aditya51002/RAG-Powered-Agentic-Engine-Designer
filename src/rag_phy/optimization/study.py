@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -45,6 +46,23 @@ class OptimizationRun:
     pareto_frontier: tuple[ParetoPoint, ...]
 
 
+@dataclass(frozen=True)
+class OptimizationProgress:
+    """One completed Optuna trial and the best-scoring candidate observed so far."""
+
+    iteration: int
+    total_iterations: int
+    status: str
+    candidate: DesignCandidate
+    performance: CycleResult
+    critique: CritiqueResult
+    score: float
+    best_candidate: DesignCandidate
+    best_performance: CycleResult
+    best_score: float
+    best_valid: bool
+
+
 class OptunaOptimizer:
     """Run a scalar Optuna study and incrementally retain valid Pareto-optimal designs."""
 
@@ -63,10 +81,14 @@ class OptunaOptimizer:
         self._objective = DesignObjective(config.objective)
         self._frontier = ParetoFrontier(config.objective.signature_decimal_places)
         self._evaluated_candidates: dict[
-            str, tuple[ObjectiveResult, CritiqueResult]
+            str, tuple[ObjectiveResult, CritiqueResult, CycleResult]
         ] = {}
 
-    def run(self, design_goal: str) -> OptimizationRun:
+    def run(
+        self,
+        design_goal: str,
+        progress_callback: Callable[[OptimizationProgress], None] | None = None,
+    ) -> OptimizationRun:
         """Execute the configured number of actual Optuna trials for one design goal.
 
         Each sampled design is passed through the Phase 5 graph in single-candidate mode.
@@ -77,13 +99,51 @@ class OptunaOptimizer:
             raise ValueError("Design goal must not be empty")
         self._frontier = ParetoFrontier(self._config.objective.signature_decimal_places)
         self._evaluated_candidates = {}
+        best_progress: OptimizationProgress | None = None
+
+        def publish_progress(
+            trial: optuna.trial.Trial,
+            candidate: DesignCandidate,
+            performance: CycleResult,
+            critique: CritiqueResult,
+            result: ObjectiveResult,
+        ) -> None:
+            nonlocal best_progress
+            if best_progress is None or result.score > best_progress.best_score:
+                best_candidate = candidate
+                best_performance = performance
+                best_score = result.score
+                best_valid = result.valid
+            else:
+                best_candidate = best_progress.best_candidate
+                best_performance = best_progress.best_performance
+                best_score = best_progress.best_score
+                best_valid = best_progress.best_valid
+            best_progress = OptimizationProgress(
+                iteration=trial.number + 1,
+                total_iterations=self._config.trial_count,
+                status="valid" if result.valid else "invalid",
+                candidate=candidate,
+                performance=performance,
+                critique=critique,
+                score=result.score,
+                best_candidate=best_candidate,
+                best_performance=best_performance,
+                best_score=best_score,
+                best_valid=best_valid,
+            )
+            if progress_callback is not None:
+                progress_callback(best_progress)
+
         study = optuna.create_study(
             direction="maximize",
             sampler=optuna.samplers.TPESampler(seed=self._config.random_seed),
         )
         try:
             study.optimize(
-                lambda trial: self._evaluate_trial(trial, design_goal.strip()),
+                lambda trial: self._evaluate_trial(
+                    trial, design_goal.strip(), publish_progress
+                ),
                 n_trials=self._config.trial_count,
                 n_jobs=1,
             )
@@ -100,7 +160,15 @@ class OptunaOptimizer:
         )
         return OptimizationRun(study=study, pareto_frontier=self._frontier.points)
 
-    def _evaluate_trial(self, trial: optuna.trial.Trial, design_goal: str) -> float:
+    def _evaluate_trial(
+        self,
+        trial: optuna.trial.Trial,
+        design_goal: str,
+        publish_progress: Callable[
+            [optuna.trial.Trial, DesignCandidate, CycleResult, CritiqueResult, ObjectiveResult],
+            None,
+        ],
+    ) -> float:
         """Sample, run, score, and attach auditable metrics to one Optuna trial."""
         candidate = self._candidate_sampler(trial)
         trial.set_user_attr("candidate", candidate.model_dump(mode="json"))
@@ -109,9 +177,10 @@ class OptunaOptimizer:
         )
         cached = self._evaluated_candidates.get(signature)
         if cached is not None:
-            objective_result, critique = cached
+            objective_result, critique, performance = cached
             trial.set_user_attr("duplicate_evaluation_reused", True)
             self._set_trial_metrics(trial, objective_result, candidate, critique)
+            publish_progress(trial, candidate, performance, critique, objective_result)
             logger.info(
                 "Reused prior evaluation for canonical duplicate design",
                 extra={"trial": trial.number, "candidate_signature": signature},
@@ -139,7 +208,7 @@ class OptunaOptimizer:
             critique=critique,
             engine_weight_n=weight_n,
         )
-        self._evaluated_candidates[signature] = (objective_result, critique)
+        self._evaluated_candidates[signature] = (objective_result, critique, performance)
         self._set_trial_metrics(trial, objective_result, candidate, critique)
         if objective_result.valid:
             self._frontier.add(
@@ -152,6 +221,7 @@ class OptunaOptimizer:
                     cited_sources=critique.cited_sources,
                 )
             )
+        publish_progress(trial, candidate, performance, critique, objective_result)
         logger.info(
             "Optuna trial evaluated",
             extra={
@@ -195,7 +265,8 @@ class OptunaOptimizer:
 __all__ = [
     "CandidateSampler",
     "EngineWeightEstimator",
-    "OptunaOptimizer",
+    "OptimizationProgress",
     "OptimizationRun",
     "OptimizationRunError",
+    "OptunaOptimizer",
 ]

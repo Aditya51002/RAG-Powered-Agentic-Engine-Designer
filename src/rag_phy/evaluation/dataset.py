@@ -17,13 +17,34 @@ class LabeledQACase(BaseModel):
     id: str = Field(min_length=1)
     question: str = Field(min_length=1)
     reference_answer: str = Field(min_length=1)
-    relevant_source_ids: tuple[str, ...] = Field(min_length=1)
+    answerable: bool = True
+    relevant_source_ids: tuple[str, ...] = ()
 
     @field_validator("relevant_source_ids")
     @classmethod
     def validate_source_ids(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         if any(not value.strip() for value in values) or len(set(values)) != len(values):
-            raise ValueError("relevant_source_ids must be non-empty and unique")
+            raise ValueError("relevant_source_ids must contain only non-empty unique IDs")
+        return values
+
+    @field_validator("reference_answer")
+    @classmethod
+    def validate_answerability(cls, value: str, info) -> str:
+        answerable = info.data.get("answerable", True)
+        if not answerable and value.strip().casefold() not in {
+            "unanswerable", "not answerable from the indexed corpus", ""
+        }:
+            raise ValueError("unanswerable cases must use an explicit abstention reference")
+        return value
+
+    @field_validator("relevant_source_ids")
+    @classmethod
+    def validate_answerable_sources(cls, values: tuple[str, ...], info) -> tuple[str, ...]:
+        answerable = info.data.get("answerable", True)
+        if answerable and not values:
+            raise ValueError("answerable cases require at least one relevant source ID")
+        if not answerable and values:
+            raise ValueError("unanswerable cases must not name supporting source IDs")
         return values
 
 

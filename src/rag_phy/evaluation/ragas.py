@@ -30,6 +30,8 @@ class EvaluationReport(BaseModel):
     dataset_version: str
     source_corpus_version: str | None
     case_count: int = Field(gt=0)
+    answerable_case_count: int = Field(gt=0)
+    unanswerable_retrieval_empty_rate: float = Field(ge=0, le=1)
     retrieval_precision: float = Field(ge=0, le=1)
     retrieval_recall: float = Field(ge=0, le=1)
     ragas_scores: dict[str, float]
@@ -93,20 +95,31 @@ def evaluate_dataset(
     samples: list[dict[str, Any]] = []
     precision_sum = 0.0
     recall_sum = 0.0
+    unanswerable_empty_count = 0
+    unanswerable_count = 0
     for case in dataset.cases:
         output = target.answer(case.question)
-        samples.append(
-            {
-                "user_input": case.question,
-                "retrieved_contexts": [context.text for context in output.retrieved_contexts],
-                "response": output.answer,
-                "reference": case.reference_answer,
-            }
-        )
+        if case.answerable:
+            samples.append(
+                {
+                    "user_input": case.question,
+                    "retrieved_contexts": [context.text for context in output.retrieved_contexts],
+                    "response": output.answer,
+                    "reference": case.reference_answer,
+                }
+            )
         relevant = set(case.relevant_source_ids)
         retrieved = {context.source_id for context in output.retrieved_contexts}
-        precision_sum += len(relevant & retrieved) / len(retrieved) if retrieved else 0.0
-        recall_sum += len(relevant & retrieved) / len(relevant)
+        if case.answerable:
+            precision_sum += len(relevant & retrieved) / len(retrieved) if retrieved else 0.0
+            recall_sum += len(relevant & retrieved) / len(relevant)
+        else:
+            precision_sum += float(not retrieved)
+            unanswerable_count += 1
+            unanswerable_empty_count += int(not retrieved)
+
+    if not samples:
+        raise ValueError("RAGAS scoring requires at least one answerable case")
 
     raw_scores = backend.evaluate(samples)
     scores: dict[str, float] = {}
@@ -116,12 +129,17 @@ def evaluate_dataset(
             raise ValueError(f"RAGAS metric {name!r} returned a non-finite score")
         scores[name] = score
     count = len(dataset.cases)
+    answerable_count = sum(case.answerable for case in dataset.cases)
     return EvaluationReport(
         dataset_version=dataset.dataset_version,
         source_corpus_version=dataset.source_corpus_version,
         case_count=count,
+        answerable_case_count=answerable_count,
+        unanswerable_retrieval_empty_rate=(
+            unanswerable_empty_count / unanswerable_count if unanswerable_count else 1.0
+        ),
         retrieval_precision=precision_sum / count,
-        retrieval_recall=recall_sum / count,
+        retrieval_recall=recall_sum / answerable_count,
         ragas_scores=scores,
     )
 

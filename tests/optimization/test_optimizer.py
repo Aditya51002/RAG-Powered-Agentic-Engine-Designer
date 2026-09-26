@@ -174,13 +174,19 @@ def test_short_optuna_study_runs_phase5_mocked_pipeline() -> None:
         weight_estimator=lambda candidate, performance: 10000.0,
     )
 
-    result = optimizer.run("synthetic integration test")
+    progress = []
+    result = optimizer.run("synthetic integration test", progress_callback=progress.append)
 
     assert len(result.study.trials) == optimization_config.trial_count
     assert result.study.best_trial.state.name == "COMPLETE"
     assert all(trial.user_attrs["valid"] for trial in result.study.trials)
     assert result.pareto_frontier
     assert all(point.cited_sources for point in result.pareto_frontier)
+    assert [item.iteration for item in progress] == list(
+        range(1, optimization_config.trial_count + 1)
+    )
+    assert progress[-1].best_score == pytest.approx(result.study.best_value)
+    assert progress[-1].critique.cited_sources == ("synthetic:test-source",)
 
 
 def test_duplicate_optuna_candidates_reuse_evaluation() -> None:
@@ -214,7 +220,8 @@ def test_duplicate_optuna_candidates_reuse_evaluation() -> None:
         weight_estimator=lambda candidate, performance: 10000.0,
     )
 
-    result = optimizer.run("duplicate sample test")
+    progress = []
+    result = optimizer.run("duplicate sample test", progress_callback=progress.append)
 
     assert len(result.study.trials) == 3
     assert simulation_calls == 1
@@ -222,3 +229,5 @@ def test_duplicate_optuna_candidates_reuse_evaluation() -> None:
         bool(trial.user_attrs.get("duplicate_evaluation_reused"))
         for trial in result.study.trials
     ) == 2
+    assert len(progress) == 3
+    assert all(event.best_valid for event in progress)

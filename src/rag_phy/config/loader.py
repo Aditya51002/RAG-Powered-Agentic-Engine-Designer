@@ -19,12 +19,27 @@ class LoggingConfig(BaseModel):
     json_output: bool = Field(default=True, alias="json")
 
 
+class DashboardConfig(BaseModel):
+    """Optional import path for the deployment-owned, fully configured app service."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    service_factory: str | None = None
+
+    @model_validator(mode="after")
+    def validate_service_factory(self) -> DashboardConfig:
+        if self.service_factory is not None and not self.service_factory.strip():
+            raise ValueError("dashboard.service_factory must be a non-empty import path")
+        return self
+
+
 class AppConfig(BaseModel):
     """Validated settings shared across the application."""
 
     model_config = ConfigDict(extra="forbid")
 
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
+    dashboard: DashboardConfig = Field(default_factory=DashboardConfig)
 
 
 class ComponentEfficiencies(BaseModel):
@@ -398,14 +413,15 @@ def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
 
 
 __all__ = [
-    "AppConfig",
     "AgentPromptsConfig",
+    "AppConfig",
     "ChunkingConfig",
     "ComponentEfficiencies",
+    "CritiqueAgentConfig",
+    "DashboardConfig",
+    "DesignAgentConfig",
     "EmbeddingConfig",
     "EvaluationConfig",
-    "DesignAgentConfig",
-    "CritiqueAgentConfig",
     "KnowledgeConfig",
     "LoggingConfig",
     "ModelsConfig",
@@ -414,14 +430,14 @@ __all__ = [
     "OptimizationConfig",
     "OrchestrationConfig",
     "PhysicsConfig",
-    "VectorStoreConfig",
     "ValidationError",
+    "VectorStoreConfig",
+    "load_agent_prompts_config",
     "load_config",
     "load_evaluation_config",
-    "load_agent_prompts_config",
     "load_knowledge_config",
     "load_models_config",
-    "load_orchestration_config",
     "load_optimization_config",
+    "load_orchestration_config",
     "load_physics_config",
 ]

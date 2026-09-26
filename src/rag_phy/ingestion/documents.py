@@ -42,18 +42,19 @@ class DocumentLoader:
         if not source_path.is_file():
             raise FileNotFoundError(f"Document source does not exist: {source_path}")
         suffix = source_path.suffix.casefold()
+        stable_path = source_path.as_posix() if not source_path.is_absolute() else str(source_path)
         try:
             if suffix in {".txt", ".md", ".markdown"}:
                 text = source_path.read_text(encoding="utf-8")
                 documents = [
                     SourceDocument(
-                        source_ref=str(source_path.resolve()),
+                        source_ref=stable_path,
                         title=source_path.name,
                         text=text,
                     )
                 ]
             elif suffix == ".pdf":
-                documents = self._load_pdf(source_path)
+                documents = self._load_pdf(source_path, stable_path)
             else:
                 raise DocumentParseError(f"Unsupported document format: {suffix or '(no suffix)'}")
         except (FileNotFoundError, DocumentParseError):
@@ -68,7 +69,7 @@ class DocumentLoader:
         return non_empty
 
     @staticmethod
-    def _load_pdf(path: Path) -> list[SourceDocument]:
+    def _load_pdf(path: Path, source_ref: str | None = None) -> list[SourceDocument]:
         """Extract page-level text from a PDF using PyMuPDF."""
         try:
             import pymupdf
@@ -80,7 +81,7 @@ class DocumentLoader:
         with pymupdf.open(path) as pdf:
             return [
                 SourceDocument(
-                    source_ref=f"{path.resolve()}#page={page_number}",
+                    source_ref=f"{source_ref or path}#page={page_number}",
                     title=path.name,
                     text=page.get_text("text", sort=True),
                 )

@@ -45,6 +45,10 @@ The optimizer requires injected `CandidateSampler` and `EngineWeightEstimator` i
 
 `cumulative_validity_rate` and `validity_observations_from_study` convert completed optimizer outcomes into cumulative rates; `save_validity_chart` writes a PNG. Pass `JsonlTraceSink(load_evaluation_config(...).trace_jsonl_path)` to `DesignWorkflow` to persist one correlated span event for each graph transition. The sink interface can also be implemented by a hosted tracing backend such as Langfuse; local JSONL tracing needs no credentials. Evaluation tests use explicitly synthetic examples and are contract tests, not claims about retrieval performance or engineering validity.
 
+## Dashboard
+
+Install `.[app]` and run `streamlit run src/rag_phy/app/streamlit_app.py`. The page accepts a design goal and additional constraints, then displays typed progress updates, best-so-far cycle outputs, candidate reasoning, violations, and citations from an injected `DashboardService`. Configure `dashboard.service_factory` in `config/app.yaml` as `python.module:function`; the factory can return `OptimizationDashboardService` around a real configured `OptunaOptimizer`. The UI owns no physics, proposal, retrieval, or scoring logic. The factory is intentionally unset in this checkout: there is no real LLM adapter, populated source/material corpus, verified candidate sampler, or engine-weight estimator, so the app reports setup status instead of presenting a mocked run as real.
+
 ## Physics Model
 
 Load the typed settings using `load_physics_config("config/physics_bounds.yaml")`, create a `CycleInput`, and call `simulate_cycle(inputs, config)`. Input and output field names carry SI units. The model assumes a single-spool turbojet, represents combustion products as CoolProp Air, neglects fuel sensible enthalpy, applies configured station efficiencies, and models a convergent nozzle with real-fluid sonic choking and pressure thrust. These are preliminary cycle estimates, not flight or manufacturing validation. The fuel value, limits, and benchmark efficiencies in `physics_bounds.yaml` have citations in its comments.

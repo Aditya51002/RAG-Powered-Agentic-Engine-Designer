@@ -9,9 +9,10 @@ from rag_phy.optimization.pareto import ParetoFrontier, ParetoPoint
 from rag_phy.optimization.study import (
     CandidateSampler,
     EngineWeightEstimator,
-    OptunaOptimizer,
+    OptimizationProgress,
     OptimizationRun,
     OptimizationRunError,
+    OptunaOptimizer,
 )
 
 __all__ = [
@@ -20,9 +21,10 @@ __all__ = [
     "EngineWeightEstimator",
     "ObjectiveInputError",
     "ObjectiveResult",
-    "OptunaOptimizer",
+    "OptimizationProgress",
     "OptimizationRun",
     "OptimizationRunError",
+    "OptunaOptimizer",
     "ParetoFrontier",
     "ParetoPoint",
 ]
