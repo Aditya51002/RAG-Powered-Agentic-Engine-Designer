@@ -1,5 +1,139 @@
 {
-  "dataset_version": "0.1.0",
-  "source_corpus_version": null,
-  "cases": []
+  "dataset_version": "0.2.0-draft",
+  "source_corpus_version": "sha256:2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
+  "label_review_status": "draft",
+  "cases": [
+    {
+      "id": "nasa-cmc-001",
+      "question": "What operating environments and duration did the five NASA SiC/SiC composite systems demonstrate?",
+      "answerable": true,
+      "reference_answer": "The report describes five SiC-fiber-reinforced SiC-matrix systems that operated under mechanical loading and oxidizing conditions for hundreds of hours at 1204, 1315, and 1427 C.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"]
+    },
+    {
+      "id": "nasa-cmc-002",
+      "question": "Which five NASA CMC systems are compared in the report?",
+      "answerable": true,
+      "reference_answer": "The systems are N22, N24-A, N24-B, N24-C, and N26-A.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"]
+    },
+    {
+      "id": "nasa-cmc-003",
+      "question": "What upper-use temperatures does the report list for N22, N24-A, N24-B, N24-C, and N26-A, in that order?",
+      "answerable": true,
+      "reference_answer": "The table lists 1204 C for N22, 1315 C for N24-A, N24-B, and N24-C, and 1427 C for N26-A.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"]
+    },
+    {
+      "id": "nasa-cmc-004",
+      "question": "How was remaining open porosity filled in the N22 CMC processing route, and what closed porosity did the final composite typically have?",
+      "answerable": true,
+      "reference_answer": "SiC particulate was slurry-cast into the remaining open porosity and then silicon metal was melt-infiltrated; the final composite typically had about 2 percent closed porosity.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"]
+    },
+    {
+      "id": "nasa-cmc-005",
+      "question": "What two changes to the Sylramic fiber preparation were used for N24-A, and what coating formed on the fiber?",
+      "answerable": true,
+      "reference_answer": "N24-A used alternate Sizing B to reduce carbon char and a controlled-nitrogen thermal treatment that diffused mobile boron out of the Sylramic fiber, forming a thin in-situ boron-nitride layer.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"]
+    },
+    {
+      "id": "nasa-cmc-006",
+      "question": "What is the 'outside debonding' feature of N24-B intended to do after matrix cracking?",
+      "answerable": true,
+      "reference_answer": "It allows the Si-doped BN interphase to remain on the fibers after matrix cracking, providing additional environmental protection to the fibers.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"]
+    },
+    {
+      "id": "nasa-cmc-007",
+      "question": "How did NASA fill matrix porosity in the N26-A system, and what did that avoid?",
+      "answerable": true,
+      "reference_answer": "N26-A used polymer infiltration and pyrolysis with a SiC-yielding polymer to fill porosity; this avoided free silicon in the matrix.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"]
+    },
+    {
+      "id": "nasa-cmc-008",
+      "question": "Why was silicon melt infiltration a concern for N24 materials at the highest use temperatures?",
+      "answerable": true,
+      "reference_answer": "At the high-temperature conditions discussed, silicon from melt infiltration could diffuse through the CVI SiC matrix, attack BN coatings and SiC fibers, and severely degrade composite strength. The report describes approximately 15 vol% silicon introduced by melt infiltration in this context.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"]
+    },
+    {
+      "id": "nasa-cmc-009",
+      "question": "Compare the listed upper-use temperature and room-temperature panel density for N22 and N26-A.",
+      "answerable": true,
+      "reference_answer": "N22 is listed at 1204 C and 2.85 g/cc; N26-A is listed at 1427 C and 2.52 g/cc.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"]
+    },
+    {
+      "id": "nasa-cmc-010",
+      "question": "At what approximate stress fraction and duration did NASA set its general performance objective at the selected upper-use temperature?",
+      "answerable": true,
+      "reference_answer": "The objective was more than 500 hours in air at a stress level of about 60 percent of the room-temperature proportional-limit stress.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"]
+    },
+    {
+      "id": "nasa-cmc-011",
+      "question": "At 1315 C and 103 MPa, how did the report compare N22 and N24-A creep-rupture behavior?",
+      "answerable": true,
+      "reference_answer": "The report says N22 had a life of about 100 hours under the stated 1315 C condition, while N24-A had a projected life greater than 500 hours based on its steady-state creep rate.",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ]
+    },
+    {
+      "id": "nasa-cmc-012",
+      "question": "What life capability is reported for the silicon-free N26-A system at 1450 C and 69 MPa in air?",
+      "answerable": true,
+      "reference_answer": "The report describes the N26-A system as displaying more than 300 hours of life capability at 1450 C and 69 MPa in air; this is a specific test condition, not a general design allowable.",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ]
+    },
+    {
+      "id": "nasa-cmc-013",
+      "question": "What problem did the report associate with oxygen exposure around 800 C in cracked SiC/SiC composites?",
+      "answerable": true,
+      "reference_answer": "Oxygen entering through matrix cracks can attack SiC fibers and form silica on their surfaces; fiber-fiber or fiber-matrix bonding can then prevent fibers from acting independently and reduce composite durability.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"]
+    },
+    {
+      "id": "nasa-cmc-014",
+      "question": "For what hot-section component and approximate temperature goal did the NASA UEET effort develop a SiC/SiC system?",
+      "answerable": true,
+      "reference_answer": "The report says the UEET effort built on earlier work to develop a 1315 C SiC/SiC system for potentially hotter components such as inlet turbine vanes.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"]
+    },
+    {
+      "id": "nasa-cmc-015",
+      "question": "What general advantages of CMCs over metallic alloys does the report identify for advanced engines?",
+      "answerable": true,
+      "reference_answer": "The report identifies higher temperature capability, lower density, and sufficient toughness for damage tolerance; it discusses potential benefits including reduced cooling-air requirements, simpler components, reduced support-structure weight, improved fuel efficiency, reduced emissions, longer service life, and higher thrust.",
+      "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"]
+    },
+    {
+      "id": "nasa-cmc-016",
+      "question": "What compressor pressure ratio did a particular modern production turbofan use during its 2025 certification test?",
+      "answerable": false,
+      "reference_answer": "Unanswerable",
+      "relevant_source_ids": []
+    },
+    {
+      "id": "nasa-cmc-017",
+      "question": "What is the fatigue life of a CMSX-4 turbine blade in a named commercial engine at its certified operating point?",
+      "answerable": false,
+      "reference_answer": "Unanswerable",
+      "relevant_source_ids": []
+    },
+    {
+      "id": "nasa-cmc-018",
+      "question": "What cooling effectiveness and coolant mass fraction were measured in a specific 2024 engine test?",
+      "answerable": false,
+      "reference_answer": "Unanswerable",
+      "relevant_source_ids": []
+    }
+  ]
 }

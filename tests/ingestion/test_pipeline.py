@@ -7,8 +7,10 @@ import chromadb
 import pymupdf
 import pytest
 
-from rag_phy.config import ModelsConfig, load_models_config
+from rag_phy.config import ChunkingConfig, ModelsConfig, load_models_config
 from rag_phy.ingestion import DocumentLoader, IngestionPipeline, SentenceTransformerEmbedder
+from rag_phy.ingestion.chunking import TextChunker
+from rag_phy.ingestion.documents import SourceDocument
 from rag_phy.knowledge import ChromaVectorStore
 
 
@@ -49,7 +51,9 @@ class FixtureEmbeddingModel:
 class FixtureTokenizer:
     """Test-only token counter for fixture text."""
 
-    def encode(self, text: str, add_special_tokens: bool) -> list[str]:
+    def encode(
+        self, text: str, add_special_tokens: bool, verbose: bool = True
+    ) -> list[str]:
         """Split fixture input on whitespace into deterministic token placeholders."""
         return text.split()
 
@@ -129,3 +133,16 @@ def test_relative_document_path_produces_portable_source_reference(
     loaded = DocumentLoader().load(Path("source.md"))
 
     assert loaded[0].source_ref == "source.md"
+
+
+def test_chunker_enforces_token_limit_and_retains_overlapping_coverage() -> None:
+    config = ChunkingConfig(chunk_size_characters=40, overlap_characters=5)
+    chunker = TextChunker(config, token_counter=lambda text: len(text.split()), max_tokens=4)
+    source = SourceDocument("corpus.txt", "corpus", "one two three four five six seven eight")
+
+    chunks = chunker.chunk([source])
+
+    assert chunks
+    assert all(len(chunk.text.split()) <= 4 for chunk in chunks)
+    assert chunks[0].text.startswith("one")
+    assert chunks[-1].text.endswith("eight")

@@ -69,10 +69,9 @@ def _dataset() -> LabeledQADataset:
 def test_qa_artifact_loads_as_empty_scaffold_but_cannot_be_scored() -> None:
     dataset = load_qa_dataset(Path(__file__).parents[2] / "data/evaluation/qa_set.json")
 
-    assert dataset.dataset_version == "0.1.0"
-    assert not dataset.cases
-    with pytest.raises(ValueError, match="empty QA dataset"):
-        evaluate_dataset(dataset, SyntheticTarget(), SyntheticRagasBackend())
+    assert dataset.dataset_version == "0.2.0-draft"
+    assert len(dataset.cases) == 18
+    assert dataset.label_review_status == "draft"
 
 
 def test_evaluation_reports_macro_source_id_precision_recall(tmp_path: Path) -> None:

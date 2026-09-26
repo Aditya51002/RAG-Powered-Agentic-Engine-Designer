@@ -1,0 +1,13 @@
+{
+  "corpus_version": "sha256:2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
+  "documents": [
+    {
+      "path": "data/curated/corpus/NASA-TM-2004-213048.pdf",
+      "sha256": "2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
+      "source_id_prefix": "data/curated/corpus/NASA-TM-2004-213048.pdf",
+      "title": "SiC/SiC Composites for 1200 C and Above",
+      "citation": "NASA/TM-2004-213048 (2004)",
+      "url": "https://ntrs.nasa.gov/api/citations/20040191405/downloads/20040191405.pdf"
+    }
+  ]
+}

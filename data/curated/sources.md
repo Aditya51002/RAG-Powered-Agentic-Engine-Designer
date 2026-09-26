@@ -3,6 +3,9 @@
 This ledger is the provenance key for `material_constraints.csv`. The numeric kelvin
 values are unit conversions from the cited source values; they are not additional test data.
 
+The document used for the draft QA corpus is independently identified and checksummed in
+`corpus/manifest.json`; the manifest source IDs use repository-relative PDF paths and page numbers.
+
 ## NASA-CR-19690012409
 
 - NASA Contractor Report, *An Advanced Small Gas Turbine Engine for Aircraft Auxiliary Power Units*, report 19690012409.
@@ -23,6 +26,13 @@ values are unit conversions from the cited source values; they are not additiona
 - Official full text: <https://ntrs.nasa.gov/api/citations/20060054003/downloads/20060054003.pdf>
 - Relevant evidence: NASA reports upper-use temperature for the specific SiC/SiC systems A and B at 1450 deg C. 1450 deg C converts to 1723.15 K.
 - Scope: this is a specific NASA system-level upper-use value, not a safe maximum for all CMCs or an allowable design limit. Do not generalize it beyond the named system or ignore stress, exposure duration, environment, coating, and life requirements.
+
+## NASA-TM-2004-213048-CORPUS
+
+- J.A. DiCarlo et al., *SiC/SiC Composites for 1200 C and Above*, NASA/TM-2004-213048 (2004).
+- Official full text: <https://ntrs.nasa.gov/api/citations/20040191405/downloads/20040191405.pdf>
+- Local corpus document: `data/curated/corpus/NASA-TM-2004-213048.pdf`; its SHA-256 and corpus version are in `data/curated/corpus/manifest.json`.
+- Scope: indexed for the draft evaluation set only. It is not a CMSX-4 source and its CMC observations do not imply material limits for other systems.
 
 ## Coverage Not Yet Resolved
 

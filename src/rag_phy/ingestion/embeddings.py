@@ -46,7 +46,10 @@ class SentenceTransformerEmbedder:
                 ) from exc
         self._model = model
         try:
-            actual_dimension = model.get_sentence_embedding_dimension()
+            dimension_reader = getattr(model, "get_embedding_dimension", None)
+            if dimension_reader is None:
+                dimension_reader = model.get_sentence_embedding_dimension
+            actual_dimension = dimension_reader()
             model_max_tokens = model.max_seq_length
             if config.max_sequence_tokens > model_max_tokens:
                 raise EmbeddingError(
@@ -71,7 +74,11 @@ class SentenceTransformerEmbedder:
         """Call the model and wrap inference failures with model context."""
         try:
             for text in texts:
-                token_count = len(self._model.tokenizer.encode(text, add_special_tokens=True))
+                token_count = len(
+                    self._model.tokenizer.encode(
+                        text, add_special_tokens=True, verbose=False
+                    )
+                )
                 if token_count > self._config.max_sequence_tokens:
                     raise EmbeddingError(
                         f"Input has {token_count} tokens, exceeding configured model limit "
@@ -95,6 +102,12 @@ class SentenceTransformerEmbedder:
             return []
         encoded = self._encode(texts)
         return self._validate_vectors(encoded, len(texts))
+
+    def count_tokens(self, text: str) -> int:
+        """Return tokenizer length including special tokens for chunk-boundary checks."""
+        return len(
+            self._model.tokenizer.encode(text, add_special_tokens=True, verbose=False)
+        )
 
     def embed_query(self, text: str) -> list[float]:
         """Encode a query using the configured model-specific retrieval instruction."""

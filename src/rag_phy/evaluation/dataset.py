@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import (
     BaseModel,
@@ -63,6 +63,7 @@ class LabeledQADataset(BaseModel):
 
     dataset_version: str = Field(min_length=1)
     source_corpus_version: str | None = None
+    label_review_status: Literal["draft", "reviewed"] = "draft"
     cases: tuple[LabeledQACase, ...]
 
     @field_validator("cases")

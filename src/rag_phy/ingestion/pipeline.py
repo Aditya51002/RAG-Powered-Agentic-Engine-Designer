@@ -42,7 +42,12 @@ class IngestionPipeline:
         self._loader = loader
         self._embedder = embedder
         self._vector_store = vector_store
-        self._chunker = TextChunker(config.chunking)
+        token_counter = getattr(embedder, "count_tokens", None)
+        self._chunker = TextChunker(
+            config.chunking,
+            token_counter=token_counter if callable(token_counter) else None,
+            max_tokens=(config.embedding.max_sequence_tokens if callable(token_counter) else None),
+        )
 
     def ingest(self, paths: Sequence[str | Path]) -> IngestionReport:
         """Parse and index source files, deduplicating before embedding.

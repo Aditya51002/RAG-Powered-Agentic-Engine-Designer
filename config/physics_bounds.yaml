@@ -18,9 +18,9 @@ numerics:
 # Source for the benchmark conditions/efficiencies and worked station outputs:
 # IIT Bombay, NPTEL Introduction to Aerospace Propulsion, Lecture 11, Problem 1.
 # https://archive.nptel.ac.in/content/storage2/courses/101101002/downloads/Lect-11.pdf
-# Historical source note claimed 43 MJ/kg from an NPTEL Lecture 34 problem, but the
-# linked supporting page has not been verified. Treat this as an unverified placeholder;
-# see KNOWN_ASSUMPTIONS.md. It is not a universal fuel property.
-# Previously linked page: https://courseware.cutm.ac.in/wp-content/uploads/2020/06/Thrust-and-efficiency.pdf
+# Representative kerosene specific energy: NASA/CR-20210000284, p. 37 (printed p. 40),
+# uses 43 MJ/kg and identifies LHV as the combustion-fuel convention. This is a model
+# input, not a Jet-A specification; see KNOWN_ASSUMPTIONS.md.
+# https://ntrs.nasa.gov/api/citations/20210000284/downloads/1502_Datta__CR%2020210000284_081821.pdf
 # CoolProp Air EOS range (60-2000 K, pressure up to 2000 MPa): Lemmon et al. (2000),
 # https://doi.org/10.1063/1.1285884

@@ -8,7 +8,7 @@ engineering limits. No value here is a certification or safe-operating envelope.
 | Setting | Value | Evidence and limitation |
 | --- | --- | --- |
 | `working_fluid` | Air | Model choice. Combustion products are approximated as Air; this is not an equilibrium combustion model. |
-| `fuel_lower_heating_value_j_per_kg` | 43,000,000 J/kg | **Unverified placeholder.** The previous comment attributed it to an NPTEL Lecture 34 problem, but its linked source page has not been confirmed to contain this value. Fuel identity/composition is also not separately modeled. Do not treat this as a verified engineering input. |
+| `fuel_lower_heating_value_j_per_kg` | 43,000,000 J/kg | NASA/CR-20210000284, p. 37 (printed p. 40), uses 43 MJ/kg as ideal jet-fuel/kerosene specific energy and states that combustion fuels use LHV. This supports the representative model input but is not a Jet-A fuel specification or a measurement of the fuel used by a particular engine. Fuel composition is not separately modeled. |
 | `temperature_min_k` | 60 K | Rounded upward from the 59.75 K lower range reported by Lemmon et al. (2000), DOI 10.1063/1.1285884. This is a property-model envelope, not a cycle design bound. |
 | `temperature_max_k` | 2000 K | Upper temperature range reported by Lemmon et al. (2000), DOI 10.1063/1.1285884. At high temperatures/pressures the paper notes property predictions rely on nitrogen data because direct air data are absent. |
 | `pressure_max_pa` | 2,000,000,000 Pa | Upper pressure range reported by the same Air equation-of-state source. It is not an allowable engine pressure. |

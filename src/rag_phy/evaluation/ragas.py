@@ -30,6 +30,7 @@ class EvaluationReport(BaseModel):
 
     dataset_version: str
     source_corpus_version: str | None
+    label_review_status: str
     case_count: int = Field(gt=0)
     answerable_case_count: int = Field(gt=0)
     unanswerable_retrieval_empty_rate: float = Field(ge=0, le=1)
@@ -137,6 +138,7 @@ def evaluate_dataset(
     return EvaluationReport(
         dataset_version=dataset.dataset_version,
         source_corpus_version=dataset.source_corpus_version,
+        label_review_status=dataset.label_review_status,
         case_count=count,
         answerable_case_count=answerable_count,
         unanswerable_retrieval_empty_rate=(
