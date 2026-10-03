@@ -8,7 +8,10 @@ import os
 import sys
 from pathlib import Path
 
-from validate_qa_dataset import validate_qa_dataset
+try:
+    from .validate_qa_dataset import validate_qa_dataset
+except ImportError:
+    from validate_qa_dataset import validate_qa_dataset
 
 from rag_phy.config import load_models_config
 from rag_phy.ingestion import DocumentLoader, IngestionPipeline, SentenceTransformerEmbedder

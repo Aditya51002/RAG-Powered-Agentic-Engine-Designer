@@ -91,6 +91,7 @@ def create_app(
             logger.info(
                 "API request completed",
                 extra={
+                    "request_id": correlation_id,
                     "method": request.method,
                     "path": request.url.path,
                     "status_code": response.status_code,

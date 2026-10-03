@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - "${RAG_PHY_API_PORT:-8000}:8000"
+    environment:
+      RAG_PHY_LOGGING__LEVEL: ${RAG_PHY_LOGGING__LEVEL:-INFO}
+      RAG_PHY_LOGGING__JSON: ${RAG_PHY_LOGGING__JSON:-true}
+    volumes:
+      - vector_data:/app/data/chroma
+      - model_cache:/var/lib/rag-phy/huggingface
+      - trace_data:/app/reports/traces
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; response = urlopen('http://127.0.0.1:8000/health', timeout=5); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5m
+
+volumes:
+  vector_data:
+  model_cache:
+  trace_data:

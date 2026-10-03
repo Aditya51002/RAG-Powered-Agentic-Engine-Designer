@@ -149,13 +149,16 @@ class ChromaVectorStore:
 
     def check_ready(self) -> None:
         """Verify the backing store responds and its configured collection is populated."""
-        try:
-            record_count = self._collection.count()
-        except Exception as exc:
-            logger.exception("Chroma readiness check failed")
-            raise VectorStoreError("Configured Chroma collection is not reachable") from exc
-        if record_count == 0:
+        if self.count() == 0:
             raise VectorStoreError("Configured Chroma collection is empty")
+
+    def count(self) -> int:
+        """Return the indexed record count, preserving store failures as domain errors."""
+        try:
+            return int(self._collection.count())
+        except Exception as exc:
+            logger.exception("Chroma collection count failed")
+            raise VectorStoreError("Configured Chroma collection is not reachable") from exc
 
 
 __all__ = ["ChromaVectorStore", "RetrievalResult", "VectorStore", "VectorStoreError"]

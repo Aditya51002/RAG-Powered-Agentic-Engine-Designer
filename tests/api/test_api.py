@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -137,7 +138,8 @@ def test_structured_validation_not_found_and_not_configured_errors() -> None:
         assert unready.status_code == 503
 
 
-def test_request_id_is_generated_when_supplied_value_is_invalid() -> None:
+def test_request_id_is_generated_when_supplied_value_is_invalid(caplog) -> None:
+    caplog.set_level(logging.INFO, logger="rag_phy.api.service")
     with TestClient(create_app(readiness_check=lambda: True)) as client:
         response = client.get("/health", headers={"x-request-id": "bad value"})
 
@@ -145,6 +147,11 @@ def test_request_id_is_generated_when_supplied_value_is_invalid() -> None:
     assert response.status_code == 200
     assert generated_id != "bad value"
     assert generated_id.isalnum()
+    assert any(
+        record.getMessage() == "API request completed"
+        and record.request_id == generated_id
+        for record in caplog.records
+    )
 
 
 def test_internal_worker_error_is_recorded_without_exposing_traceback(tmp_path: Path) -> None:
