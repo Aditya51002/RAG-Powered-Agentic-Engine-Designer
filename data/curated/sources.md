@@ -2,6 +2,7 @@
 
 This ledger is the provenance key for `material_constraints.csv`. The numeric kelvin
 values are unit conversions from the cited source values; they are not additional test data.
+It also records source IDs used by optimizer inputs under `config/`.
 
 The document used for the draft QA corpus is independently identified and checksummed in
 `corpus/manifest.json`; the manifest source IDs use repository-relative PDF paths and page numbers.
@@ -37,3 +38,16 @@ The document used for the draft QA corpus is independently identified and checks
 ## Coverage Not Yet Resolved
 
 CMSX-4 or another single-crystal superalloy has not been assigned a maximum service temperature. Public creep-rupture test points are condition-dependent and do not by themselves establish a general service limit. Do not infer an allowable temperature from a test point. The requested superalloy coverage remains an open Phase 8 item until a suitably qualified manufacturer or handbook limit is reviewed.
+
+## NASA-TM-X-73199-TURBOJET-DATA
+
+- M.H. Waters and E.T. Schairer, *Analysis of Turbofan Propulsion System Weight and Dimensions*, NASA-TM-X-73199 (1977), Table 1, printed p. 29, `Turbojets` subsection.
+- Official full text: <https://ntrs.nasa.gov/api/citations/19770012125/downloads/19770012125.pdf>
+- The table reports sea-level-static (SLS) thrust and dry mass for CJ805-3 (49,817 N; 1,270 kg), CJ610-1 (12,677 N; 181 kg), CJ610-8 (13,789 N; 185 kg), JT4A-3 (70,278 N; 2,277 kg), and JT3C-6 (60,048 N; 1,920 kg). These are the lookup anchors in `config/engine_weight.yaml`; only directly printed N and kg values are used.
+- Scope: historical turbojet hardware data, not a design correlation or a guarantee for a newly designed engine. The implementation linearly interpolates dry mass against candidate net thrust only between the lowest and highest listed SLS thrusts, converts mass to force using the standard-gravity convention below, and refuses extrapolation. Candidate thrust is not necessarily SLS-rated thrust, and interpolation across different engine families is a preliminary approximation requiring validation for a selected engine class.
+
+## NIST-SP-811-STANDARD-GRAVITY
+
+- NIST, *Guide to the SI*, Appendix B.8, standard acceleration of free fall `g_n = 9.80665 m/s^2` (exact conventional value).
+- Official source: <https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b8>
+- Used only to convert the NASA table's dry mass in kg to force in N for the existing thrust-to-weight objective. It is not an engine-design parameter.

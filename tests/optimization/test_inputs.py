@@ -11,6 +11,7 @@ from rag_phy.config import (
     CandidateSearchConfig,
     EngineWeightLookupConfig,
     load_candidate_search_config,
+    load_engine_weight_lookup_config,
 )
 from rag_phy.optimization import ConfiguredCandidateSampler, SourcedEngineWeightEstimator
 from rag_phy.physics.models import CycleResult
@@ -136,3 +137,34 @@ def test_engine_weight_lookup_interpolates_and_refuses_extrapolation() -> None:
     assert estimator(candidate, _cycle(100)) == 400
     with pytest.raises(ValueError, match="extrapolation is disabled"):
         estimator(candidate, _cycle(600))
+
+
+def test_nasa_engine_weight_dataset_loads_with_ledger_provenance() -> None:
+    root = Path(__file__).parents[2]
+    config = load_engine_weight_lookup_config(
+        root / "config" / "engine_weight.yaml",
+        root / "data" / "curated" / "sources.md",
+    )
+    estimator = SourcedEngineWeightEstimator(config)
+    candidate = DesignCandidate(
+        ambient_temperature_k=290,
+        ambient_pressure_pa=100000,
+        flight_speed_m_per_s=0,
+        air_mass_flow_kg_per_s=5,
+        compressor_pressure_ratio=5,
+        turbine_inlet_temperature_k=1000,
+        hot_section_material_name="SYNTHETIC-ALLOY",
+    )
+
+    assert len(config.anchors) == 5
+    assert [
+        (anchor.rated_thrust_n, anchor.dry_mass_kg) for anchor in config.anchors
+    ] == [
+        (12677, 181),
+        (13789, 185),
+        (49817, 1270),
+        (60048, 1920),
+        (70278, 2277),
+    ]
+    assert estimator(candidate, _cycle(12677)) == pytest.approx(181 * 9.80665)
+    assert estimator(candidate, _cycle(70278)) == pytest.approx(2277 * 9.80665)

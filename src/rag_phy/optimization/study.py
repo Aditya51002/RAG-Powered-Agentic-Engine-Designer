@@ -40,10 +40,14 @@ class OptimizationRunError(RuntimeError):
 
 @dataclass(frozen=True)
 class OptimizationRun:
-    """Completed Optuna study and its independently maintained Pareto frontier."""
+    """Completed study, Pareto frontier, and highest-scoring valid design observed."""
 
     study: Any
     pareto_frontier: tuple[ParetoPoint, ...]
+    best_valid_candidate: DesignCandidate | None = None
+    best_valid_performance: CycleResult | None = None
+    best_valid_critique: CritiqueResult | None = None
+    best_valid_score: float | None = None
 
 
 @dataclass(frozen=True)
@@ -105,6 +109,7 @@ class OptunaOptimizer:
         self._frontier = ParetoFrontier(self._config.objective.signature_decimal_places)
         self._evaluated_candidates = {}
         best_progress: OptimizationProgress | None = None
+        best_valid: tuple[float, DesignCandidate, CycleResult, CritiqueResult] | None = None
 
         def publish_progress(
             trial: optuna.trial.Trial,
@@ -113,17 +118,19 @@ class OptunaOptimizer:
             critique: CritiqueResult,
             result: ObjectiveResult,
         ) -> None:
-            nonlocal best_progress
+            nonlocal best_progress, best_valid
+            if result.valid and (best_valid is None or result.score > best_valid[0]):
+                best_valid = (result.score, candidate, performance, critique)
             if best_progress is None or result.score > best_progress.best_score:
                 best_candidate = candidate
                 best_performance = performance
                 best_score = result.score
-                best_valid = result.valid
+                progress_best_valid = result.valid
             else:
                 best_candidate = best_progress.best_candidate
                 best_performance = best_progress.best_performance
                 best_score = best_progress.best_score
-                best_valid = best_progress.best_valid
+                progress_best_valid = best_progress.best_valid
             best_progress = OptimizationProgress(
                 iteration=trial.number + 1,
                 total_iterations=effective_trial_count,
@@ -135,7 +142,7 @@ class OptunaOptimizer:
                 best_candidate=best_candidate,
                 best_performance=best_performance,
                 best_score=best_score,
-                best_valid=best_valid,
+                best_valid=progress_best_valid,
             )
             if progress_callback is not None:
                 progress_callback(best_progress)
@@ -166,7 +173,14 @@ class OptunaOptimizer:
                 "best_score": study.best_value,
             },
         )
-        return OptimizationRun(study=study, pareto_frontier=self._frontier.points)
+        return OptimizationRun(
+            study=study,
+            pareto_frontier=self._frontier.points,
+            best_valid_candidate=best_valid[1] if best_valid else None,
+            best_valid_performance=best_valid[2] if best_valid else None,
+            best_valid_critique=best_valid[3] if best_valid else None,
+            best_valid_score=best_valid[0] if best_valid else None,
+        )
 
     def _evaluate_trial(
         self,

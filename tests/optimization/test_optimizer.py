@@ -185,6 +185,10 @@ def test_short_optuna_study_runs_phase5_mocked_pipeline() -> None:
     assert len(result.study.trials) == requested_trials
     assert result.study.best_trial.state.name == "COMPLETE"
     assert all(trial.user_attrs["valid"] for trial in result.study.trials)
+    assert result.best_valid_candidate is not None
+    assert result.best_valid_performance is not None
+    assert result.best_valid_critique is not None
+    assert result.best_valid_score == pytest.approx(result.study.best_value)
     assert result.pareto_frontier
     assert all(point.cited_sources for point in result.pareto_frontier)
     assert [item.iteration for item in progress] == list(
@@ -237,3 +241,41 @@ def test_duplicate_optuna_candidates_reuse_evaluation() -> None:
     ) == 2
     assert len(progress) == 3
     assert all(event.best_valid for event in progress)
+    assert result.best_valid_candidate is not None
+    assert result.best_valid_score is not None
+
+
+def test_optimizer_does_not_report_invalid_candidate_as_accepted() -> None:
+    root = Path(__file__).parents[2]
+    optimization_config = load_optimization_config(root / "config" / "optimization.yaml")
+    physics_config = load_physics_config(root / "config" / "physics_bounds.yaml")
+    orchestration_config = load_orchestration_config(
+        root / "config" / "orchestration.yaml"
+    ).model_copy(update={"max_iterations": 1})
+
+    class AlwaysInvalidCritique:
+        def critique(self, candidate: DesignCandidate, performance: CycleResult) -> CritiqueResult:
+            return _critique(valid=False, severity=0.1)
+
+    workflow = DesignWorkflow(
+        design_agent=NoCallDesignAgent(),
+        physics_config=physics_config,
+        critique_agent=AlwaysInvalidCritique(),
+        scorer=lambda candidate, performance: performance.thrust_n,
+        orchestration_config=orchestration_config,
+        simulator=lambda inputs, config: _performance(),
+    )
+    optimizer = OptunaOptimizer(
+        config=optimization_config,
+        workflow=workflow,
+        candidate_sampler=lambda trial: _candidate(6.0),
+        weight_estimator=lambda candidate, performance: 10000.0,
+    )
+
+    result = optimizer.run("synthetic invalid-result test", trial_count=2)
+
+    assert not result.pareto_frontier
+    assert result.best_valid_candidate is None
+    assert result.best_valid_performance is None
+    assert result.best_valid_critique is None
+    assert result.best_valid_score is None

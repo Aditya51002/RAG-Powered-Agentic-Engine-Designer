@@ -13,4 +13,6 @@ objective:
 # both penalty coefficients are score-space tuning knobs, and the T/W reference is
 # unity. The SFC scale comes from the NPTEL Lecture 11 worked cycle regression test:
 # config/physics_bounds.yaml cites that source; do not treat it as a production target.
-# Search ranges and engine weight estimates must be supplied from verified project data.
+# Search ranges remain unset until verified project bounds are approved. The preliminary,
+# source-backed engine dry-mass lookup is in config/engine_weight.yaml; its cross-engine
+# interpolation and rated-thrust assumptions still require engineering review.
