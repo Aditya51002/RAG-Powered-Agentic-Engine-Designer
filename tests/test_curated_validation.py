@@ -43,6 +43,6 @@ def test_retrieval_metrics_treat_unanswerable_cases_separately() -> None:
         [{"source:a", "source:extra"}, set()],
     )
 
-    assert metrics["retrieval_precision_macro"] == 0.75
+    assert metrics["retrieval_precision_macro_answerable"] == 0.5
     assert metrics["retrieval_recall_macro_answerable"] == 1.0
     assert metrics["unanswerable_retrieval_empty_rate"] == 1.0

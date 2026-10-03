@@ -118,7 +118,6 @@ def evaluate_dataset(
             precision_sum += len(relevant & retrieved) / len(retrieved) if retrieved else 0.0
             recall_sum += len(relevant & retrieved) / len(relevant)
         else:
-            precision_sum += float(not retrieved)
             unanswerable_count += 1
             unanswerable_empty_count += int(not retrieved)
             unanswerable_abstention_count += int(output.abstained)
@@ -147,7 +146,7 @@ def evaluate_dataset(
         unanswerable_abstention_rate=(
             unanswerable_abstention_count / unanswerable_count if unanswerable_count else 1.0
         ),
-        retrieval_precision=precision_sum / count,
+        retrieval_precision=precision_sum / answerable_count,
         retrieval_recall=recall_sum / answerable_count,
         ragas_scores=scores,
     )

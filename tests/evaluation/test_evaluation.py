@@ -121,6 +121,8 @@ def test_evaluation_separates_unanswerable_retrieval_and_abstention() -> None:
 
     assert report.case_count == 2
     assert report.answerable_case_count == 1
+    assert report.retrieval_precision == pytest.approx(0.5)
+    assert report.retrieval_recall == 1.0
     assert report.unanswerable_retrieval_empty_rate == 1.0
     assert report.unanswerable_abstention_rate == 1.0
 

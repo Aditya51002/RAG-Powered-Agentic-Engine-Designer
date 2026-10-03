@@ -31,7 +31,7 @@ def calculate_source_metrics(
     relevant_sources: Sequence[set[str]],
     retrieved_sources: Sequence[set[str]],
 ) -> dict[str, float]:
-    """Calculate macro source-ID precision/recall and empty retrieval on unanswerables."""
+    """Score retrieval on answerable cases and report empty retrieval separately."""
     if not answerability or not (
         len(answerability) == len(relevant_sources) == len(retrieved_sources)
     ):
@@ -54,9 +54,8 @@ def calculate_source_metrics(
         else:
             unanswerable_count += 1
             unanswerable_empty += int(not retrieved)
-            precision_sum += float(not retrieved)
     return {
-        "retrieval_precision_macro": precision_sum / len(answerability),
+        "retrieval_precision_macro_answerable": precision_sum / answerable_count,
         "retrieval_recall_macro_answerable": recall_sum / answerable_count,
         "unanswerable_retrieval_empty_rate": (
             unanswerable_empty / unanswerable_count if unanswerable_count else 1.0
