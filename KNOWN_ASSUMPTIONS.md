@@ -31,5 +31,8 @@ screens. It does not calculate blade metal temperature or cooling effectiveness,
 reject feasible cooled designs. The duplicate bare/cooled Inconel entries intentionally
 use one material-level temperature value; they do not model cooling.
 
-CMSX-4/single-crystal superalloy coverage has no validated service-temperature row yet.
-Do not optimize or claim a material-feasible design based on this incomplete table.
+SC 180 now has a manufacturer-sourced screening value in the curated table. The stated
+1000 C property-temperature claim is not a qualified allowable or validated service limit;
+see `SEAH-SC180` in the source ledger. CMSX-4 itself still has no general service-temperature
+row. Do not optimize or claim a material-feasible design based on this incomplete table or
+mistake the SC 180 screen for component qualification.

@@ -115,19 +115,49 @@ def test_non_transient_api_errors_are_not_retried() -> None:
     assert not delays
 
 
-def test_rate_limit_without_retry_after_fails_fast() -> None:
+def test_rate_limit_without_retry_after_uses_bounded_backoff() -> None:
     rate_limit = RuntimeError("usage tier cap reached")
     rate_limit.response = SimpleNamespace(status_code=429, headers={})
-    messages = _Messages([rate_limit])
+    messages = _Messages([rate_limit, _response()])
     delays = []
     client = AnthropicLLMClient(
         _config(), sdk_client=SimpleNamespace(messages=messages), sleep=delays.append
     )
 
-    with pytest.raises(LLMClientError):
-        client.complete("prompt")
-    assert len(messages.calls) == 1
-    assert not delays
+    assert client.complete("prompt") == "completion"
+    assert len(messages.calls) == 2
+    assert delays == [1]
+
+
+def test_rate_limit_retry_after_is_capped_by_configured_maximum() -> None:
+    rate_limit = RuntimeError("rate limited")
+    rate_limit.response = SimpleNamespace(status_code=429, headers={"retry-after": "30"})
+    messages = _Messages([rate_limit, _response()])
+    delays = []
+    client = AnthropicLLMClient(
+        _config(retry_max_delay_seconds=4),
+        sdk_client=SimpleNamespace(messages=messages),
+        sleep=delays.append,
+    )
+
+    assert client.complete("prompt") == "completion"
+    assert delays == [4]
+
+
+@pytest.mark.parametrize("retry_after", ["NaN", "inf", "-2", "not-a-number"])
+def test_malformed_retry_after_uses_finite_nonnegative_backoff(retry_after: str) -> None:
+    rate_limit = RuntimeError("rate limited")
+    rate_limit.response = SimpleNamespace(
+        status_code=429, headers={"retry-after": retry_after}
+    )
+    messages = _Messages([rate_limit, _response()])
+    delays = []
+    client = AnthropicLLMClient(
+        _config(), sdk_client=SimpleNamespace(messages=messages), sleep=delays.append
+    )
+
+    assert client.complete("prompt") == "completion"
+    assert delays == [1]
 
 
 def test_missing_key_fails_before_client_creation() -> None:
@@ -142,4 +172,7 @@ def test_llm_key_comes_from_environment_and_is_excluded_from_serialization() -> 
 
     assert config.llm is not None
     assert config.llm.api_key == "test-env-secret"
+    assert config.llm.model_name == "claude-sonnet-5-5"
+    assert config.llm.input_cost_usd_per_million_tokens == 2
+    assert config.llm.output_cost_usd_per_million_tokens == 10
     assert "test-env-secret" not in str(config.model_dump())

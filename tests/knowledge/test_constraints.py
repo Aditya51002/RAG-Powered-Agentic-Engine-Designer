@@ -29,6 +29,10 @@ def test_curated_source_backed_records_load_from_project_data() -> None:
     assert store.get_material("NASA SiC/SiC System A CMC").source_id == (
         "NASA-TM-2006-20060054003"
     )
+    assert store.get_material("SC 180 single-crystal superalloy").max_service_temperature_k == (
+        pytest.approx(1273.15)
+    )
+    assert store.get_material("SC 180 single-crystal superalloy").source_id == "SEAH-SC180"
 
 
 def test_exact_material_lookup_and_temperature_range_query() -> None:

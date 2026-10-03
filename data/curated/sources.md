@@ -28,6 +28,12 @@ The document used for the draft QA corpus is independently identified and checks
 - Relevant evidence: NASA reports upper-use temperature for the specific SiC/SiC systems A and B at 1450 deg C. 1450 deg C converts to 1723.15 K.
 - Scope: this is a specific NASA system-level upper-use value, not a safe maximum for all CMCs or an allowable design limit. Do not generalize it beyond the named system or ignore stress, exposure duration, environment, coating, and life requirements.
 
+## SEAH-SC180
+
+- SeAH Superalloy Technologies, SC 180 cast alloy product page: <https://www.seahsuperalloys.com/superalloys/sc-180>
+- The manufacturer identifies SC 180 as a single-crystal nickel-base alloy used for high-pressure turbine blades and describes yield, tensile, and creep-rupture properties at temperatures up to 1000 deg C. `material_constraints.csv` converts that stated temperature to 1273.15 K.
+- Scope: this is a manufacturer-stated temperature for alloy properties, used as a preliminary material screening threshold. It is not a component allowable, safe service limit, life-qualified design value, or substitute for stress-, orientation-, coating-, environment-, and duration-specific data. The current model also compares gas temperature rather than predicted blade-metal temperature.
+
 ## NASA-TM-2004-213048-CORPUS
 
 - J.A. DiCarlo et al., *SiC/SiC Composites for 1200 C and Above*, NASA/TM-2004-213048 (2004).

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import time
 from collections.abc import Callable
 from typing import Any, Protocol
@@ -147,9 +148,6 @@ class AnthropicLLMClient:
     @classmethod
     def _is_retryable(cls, error: Exception) -> bool:
         status = cls._status_code(error)
-        if status == 429:
-            headers = getattr(getattr(error, "response", None), "headers", {})
-            return bool(headers.get("retry-after")) if hasattr(headers, "get") else False
         return (
             status in cls._RETRYABLE_STATUSES
             or type(error).__name__ in cls._RETRYABLE_EXCEPTION_NAMES
@@ -164,6 +162,8 @@ class AnthropicLLMClient:
             try:
                 requested_delay = float(retry_after)
             except (TypeError, ValueError):
+                requested_delay = self._config.retry_initial_delay_seconds * (2**attempt)
+            if not math.isfinite(requested_delay) or requested_delay < 0:
                 requested_delay = self._config.retry_initial_delay_seconds * (2**attempt)
         return min(requested_delay, self._config.retry_max_delay_seconds)
 
