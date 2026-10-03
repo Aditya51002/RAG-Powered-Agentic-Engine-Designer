@@ -55,6 +55,7 @@ class SourcedEngineWeightEstimator:
 
     def __init__(self, config: EngineWeightLookupConfig) -> None:
         self._anchors = tuple(sorted(config.anchors, key=lambda anchor: anchor.rated_thrust_n))
+        self._standard_gravity_m_per_s2 = config.standard_gravity_m_per_s2
 
     def __call__(self, candidate: DesignCandidate, performance: CycleResult) -> float:
         del candidate
@@ -68,16 +69,17 @@ class SourcedEngineWeightEstimator:
 
         for anchor in self._anchors:
             if thrust == anchor.rated_thrust_n:
-                return anchor.dry_weight_n
+                return anchor.dry_mass_kg * self._standard_gravity_m_per_s2
 
         for lower, upper in zip(self._anchors, self._anchors[1:]):
             if lower.rated_thrust_n < thrust < upper.rated_thrust_n:
                 fraction = (thrust - lower.rated_thrust_n) / (
                     upper.rated_thrust_n - lower.rated_thrust_n
                 )
-                return lower.dry_weight_n + fraction * (
-                    upper.dry_weight_n - lower.dry_weight_n
+                dry_mass_kg = lower.dry_mass_kg + fraction * (
+                    upper.dry_mass_kg - lower.dry_mass_kg
                 )
+                return dry_mass_kg * self._standard_gravity_m_per_s2
         raise ValueError("No sourced engine-weight interval covers cycle thrust")
 
 

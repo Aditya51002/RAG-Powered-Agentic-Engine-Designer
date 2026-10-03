@@ -118,6 +118,7 @@ class DesignWorkflow:
         design_goal: str,
         initial_candidate: DesignCandidate | None = None,
         single_candidate: bool = False,
+        trace_id: str | None = None,
     ) -> WorkflowState:
         """Execute the graph, optionally starting from an optimizer-sampled candidate."""
         if not design_goal.strip():
@@ -131,7 +132,7 @@ class DesignWorkflow:
             "transition_history": [],
             "status": "running",
             "single_candidate": single_candidate,
-            "trace_id": uuid.uuid4().hex,
+            "trace_id": trace_id or uuid.uuid4().hex,
         }
         if initial_candidate is not None:
             initial_state["seed_candidate"] = initial_candidate

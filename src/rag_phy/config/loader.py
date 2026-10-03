@@ -284,21 +284,23 @@ class CandidateSearchConfig(BaseModel):
 
 
 class EngineWeightAnchor(BaseModel):
-    """Published engine thrust and dry-weight pair used by the lookup estimator."""
+    """Published sea-level-static engine thrust and dry mass pair."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
     rated_thrust_n: float = Field(gt=0)
-    dry_weight_n: float = Field(gt=0)
+    dry_mass_kg: float = Field(gt=0)
     source_id: str = Field(min_length=1)
 
 
 class EngineWeightLookupConfig(BaseModel):
-    """Sourced anchors for interpolation within, but never beyond, observed engine data."""
+    """Sourced thrust/mass anchors and documented gravity conversion."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     anchors: tuple[EngineWeightAnchor, ...] = Field(min_length=2)
+    standard_gravity_m_per_s2: float = Field(gt=0, allow_inf_nan=False)
+    standard_gravity_source_id: str = Field(min_length=1)
 
     @model_validator(mode="after")
     def validate_anchor_order(self) -> EngineWeightLookupConfig:
@@ -536,7 +538,11 @@ def load_engine_weight_lookup_config(
     """Load source-backed engine anchors and ensure provenance keys resolve."""
     config = EngineWeightLookupConfig.model_validate(_load_yaml_mapping(path))
     _validate_source_ids(
-        (anchor.source_id for anchor in config.anchors), source_ledger_path
+        (
+            *[anchor.source_id for anchor in config.anchors],
+            config.standard_gravity_source_id,
+        ),
+        source_ledger_path,
     )
     return config
 

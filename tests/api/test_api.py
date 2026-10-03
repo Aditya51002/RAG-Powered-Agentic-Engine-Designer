@@ -33,9 +33,11 @@ class _Executor:
     def __init__(self, *, fail: bool = False) -> None:
         self.fail = fail
         self.seen: tuple[str, int] | None = None
+        self.request_id: str | None = None
 
-    def run(self, design_goal, trial_count, on_progress, trace_path: Path):
+    def run(self, design_goal, trial_count, on_progress, trace_path: Path, request_id: str):
         self.seen = (design_goal, trial_count)
+        self.request_id = request_id
         on_progress(
             DesignProgressResponse(
                 iteration=1,
@@ -50,7 +52,7 @@ class _Executor:
             raise RuntimeError("internal exception must not reach client")
         trace_path.parent.mkdir(parents=True, exist_ok=True)
         trace_path.write_text(
-            '{"trace_id":"trace-1","span_id":"span-1","parent_span_id":null,'
+            f'{{"trace_id":"{request_id}","span_id":"span-1","parent_span_id":null,'
             '"node":"score","iteration":1,"message":"done","timestamp":"now"}\n',
             encoding="utf-8",
         )
@@ -88,9 +90,12 @@ def test_design_run_lifecycle_trace_search_and_readiness(tmp_path: Path) -> None
 
     with TestClient(app) as client:
         submitted = client.post(
-            "/design-runs", json={"design_goal": "minimize fuel", "trial_count": 3}
+            "/design-runs",
+            json={"design_goal": "minimize fuel", "trial_count": 3},
+            headers={"x-request-id": "request-test"},
         )
         assert submitted.status_code == 202
+        assert submitted.headers["x-request-id"] == "request-test"
         run_id = submitted.json()["run_id"]
         assert submitted.json()["status"] == "queued"
 
@@ -103,10 +108,11 @@ def test_design_run_lifecycle_trace_search_and_readiness(tmp_path: Path) -> None
         )
         assert run.json()["result"]["cited_sources"] == ["ledger:material"]
         assert executor.seen == ("minimize fuel", 3)
+        assert executor.request_id == "request-test"
 
         trace = client.get(f"/design-runs/{run_id}/trace")
         assert trace.status_code == 200
-        assert trace.json()[0]["trace_id"] == "trace-1"
+        assert trace.json()[0]["trace_id"] == "request-test"
 
         search = client.get("/knowledge/search", params={"q": "CMC"})
         assert search.status_code == 200
@@ -129,6 +135,16 @@ def test_structured_validation_not_found_and_not_configured_errors() -> None:
         assert unconfigured.json()["error"]["code"] == "not_configured"
         unready = client.get("/health")
         assert unready.status_code == 503
+
+
+def test_request_id_is_generated_when_supplied_value_is_invalid() -> None:
+    with TestClient(create_app(readiness_check=lambda: True)) as client:
+        response = client.get("/health", headers={"x-request-id": "bad value"})
+
+    generated_id = response.headers["x-request-id"]
+    assert response.status_code == 200
+    assert generated_id != "bad value"
+    assert generated_id.isalnum()
 
 
 def test_internal_worker_error_is_recorded_without_exposing_traceback(tmp_path: Path) -> None:

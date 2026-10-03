@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from rag_phy.config import AppConfig
+from rag_phy.request_context import request_id_context
 
 
 class JsonFormatter(logging.Formatter):
@@ -29,6 +30,9 @@ class JsonFormatter(logging.Formatter):
         }
         if context:
             payload["context"] = context
+        request_id = request_id_context.get()
+        if request_id is not None:
+            payload.setdefault("context", {})["request_id"] = request_id
         if record.exc_info:
             payload["exception"] = self.formatException(record.exc_info)
         return json.dumps(payload, ensure_ascii=True, default=str)

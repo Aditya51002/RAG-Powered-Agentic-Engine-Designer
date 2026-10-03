@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import uuid
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -23,6 +24,7 @@ from rag_phy.api.schemas import (
     TraceEventResponse,
 )
 from rag_phy.api.store import InMemoryRunStore
+from rag_phy.request_context import request_id_context
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,7 @@ class DesignRunExecutor(Protocol):
         trial_count: int,
         on_progress: Callable[[DesignProgressResponse], None],
         trace_path: Path,
+        request_id: str,
     ) -> DesignRunResultResponse:
         """Run the domain workflow and return explicitly mapped API response models."""
 
@@ -66,6 +69,19 @@ def create_app(
     trace_root = Path(trace_directory)
     app.state.run_store = store
 
+    @app.middleware("http")
+    async def correlate_request(request: Request, call_next):
+        supplied_id = request.headers.get("x-request-id", "").strip()
+        valid_id = bool(re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", supplied_id))
+        correlation_id = supplied_id if valid_id else uuid.uuid4().hex
+        token = request_id_context.set(correlation_id)
+        try:
+            response = await call_next(request)
+            response.headers["x-request-id"] = correlation_id
+            return response
+        finally:
+            request_id_context.reset(token)
+
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(
         request: Request, error: RequestValidationError
@@ -85,21 +101,25 @@ def create_app(
             content={"error": {"code": "internal_error", "message": "Internal server error"}},
         )
 
-    def execute_run(run_id: str, payload: DesignRunRequest) -> None:
+    def execute_run(run_id: str, payload: DesignRunRequest, request_id: str) -> None:
         assert run_executor is not None
         trace_path = trace_root / f"{run_id}.jsonl"
         store.mark_running(run_id)
+        token = request_id_context.set(request_id)
         try:
             result = run_executor.run(
                 payload.design_goal,
                 payload.trial_count,
                 lambda progress: store.update_progress(run_id, progress),
                 trace_path,
+                request_id,
             )
             store.complete(run_id, result)
         except Exception:
             logger.exception("Design run failed", extra={"run_id": run_id})
             store.fail(run_id)
+        finally:
+            request_id_context.reset(token)
 
     @app.post(
         "/design-runs",
@@ -107,13 +127,18 @@ def create_app(
         status_code=status.HTTP_202_ACCEPTED,
     )
     def submit_design_run(
-        payload: DesignRunRequest, background_tasks: BackgroundTasks
+        payload: DesignRunRequest, background_tasks: BackgroundTasks, request: Request
     ) -> DesignRunSubmissionResponse:
         if run_executor is None:
             raise APIConfigurationError("Design-run executor is not configured")
         run_id = str(uuid.uuid4())
         store.create(run_id)
-        background_tasks.add_task(execute_run, run_id, payload)
+        background_tasks.add_task(
+            execute_run,
+            run_id,
+            payload,
+            request_id_context.get() or request.headers.get("x-request-id", "") or run_id,
+        )
         return DesignRunSubmissionResponse(run_id=run_id, status="queued")
 
     @app.get("/design-runs/{run_id}", response_model=DesignRunResponse)

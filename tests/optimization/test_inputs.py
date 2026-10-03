@@ -114,9 +114,11 @@ def test_engine_weight_lookup_interpolates_and_refuses_extrapolation() -> None:
     lookup = EngineWeightLookupConfig.model_validate(
         {
             "anchors": [
-                {"rated_thrust_n": 100, "dry_weight_n": 40, "source_id": "SYNTHETIC"},
-                {"rated_thrust_n": 500, "dry_weight_n": 200, "source_id": "SYNTHETIC"},
-            ]
+                {"rated_thrust_n": 100, "dry_mass_kg": 40, "source_id": "SYNTHETIC"},
+                {"rated_thrust_n": 500, "dry_mass_kg": 200, "source_id": "SYNTHETIC"},
+            ],
+            "standard_gravity_m_per_s2": 10,
+            "standard_gravity_source_id": "SYNTHETIC",
         }
     )
     estimator = SourcedEngineWeightEstimator(lookup)
@@ -130,7 +132,7 @@ def test_engine_weight_lookup_interpolates_and_refuses_extrapolation() -> None:
         hot_section_material_name="SYNTHETIC-ALLOY",
     )
 
-    assert estimator(candidate, _cycle(300)) == pytest.approx(120)
-    assert estimator(candidate, _cycle(100)) == 40
+    assert estimator(candidate, _cycle(300)) == pytest.approx(1200)
+    assert estimator(candidate, _cycle(100)) == 400
     with pytest.raises(ValueError, match="extrapolation is disabled"):
         estimator(candidate, _cycle(600))

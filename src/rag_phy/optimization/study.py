@@ -88,6 +88,8 @@ class OptunaOptimizer:
         self,
         design_goal: str,
         progress_callback: Callable[[OptimizationProgress], None] | None = None,
+        trace_id: str | None = None,
+        trial_count: int | None = None,
     ) -> OptimizationRun:
         """Execute the configured number of actual Optuna trials for one design goal.
 
@@ -97,6 +99,9 @@ class OptunaOptimizer:
         """
         if not design_goal.strip():
             raise ValueError("Design goal must not be empty")
+        effective_trial_count = self._config.trial_count if trial_count is None else trial_count
+        if effective_trial_count <= 0:
+            raise ValueError("Trial count must be positive")
         self._frontier = ParetoFrontier(self._config.objective.signature_decimal_places)
         self._evaluated_candidates = {}
         best_progress: OptimizationProgress | None = None
@@ -121,7 +126,7 @@ class OptunaOptimizer:
                 best_valid = best_progress.best_valid
             best_progress = OptimizationProgress(
                 iteration=trial.number + 1,
-                total_iterations=self._config.trial_count,
+                total_iterations=effective_trial_count,
                 status="valid" if result.valid else "invalid",
                 candidate=candidate,
                 performance=performance,
@@ -142,9 +147,12 @@ class OptunaOptimizer:
         try:
             study.optimize(
                 lambda trial: self._evaluate_trial(
-                    trial, design_goal.strip(), publish_progress
+                    trial,
+                    design_goal.strip(),
+                    publish_progress,
+                    trace_id,
                 ),
-                n_trials=self._config.trial_count,
+                n_trials=effective_trial_count,
                 n_jobs=1,
             )
         except Exception:
@@ -168,6 +176,7 @@ class OptunaOptimizer:
             [optuna.trial.Trial, DesignCandidate, CycleResult, CritiqueResult, ObjectiveResult],
             None,
         ],
+        trace_id: str | None,
     ) -> float:
         """Sample, run, score, and attach auditable metrics to one Optuna trial."""
         candidate = self._candidate_sampler(trial)
@@ -197,6 +206,7 @@ class OptunaOptimizer:
             design_goal,
             initial_candidate=candidate,
             single_candidate=True,
+            trace_id=trace_id,
         )
         performance = state.get("performance_result")
         critique = state.get("critique_result")

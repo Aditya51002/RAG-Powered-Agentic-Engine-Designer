@@ -175,16 +175,22 @@ def test_short_optuna_study_runs_phase5_mocked_pipeline() -> None:
     )
 
     progress = []
-    result = optimizer.run("synthetic integration test", progress_callback=progress.append)
+    requested_trials = 4
+    result = optimizer.run(
+        "synthetic integration test",
+        progress_callback=progress.append,
+        trial_count=requested_trials,
+    )
 
-    assert len(result.study.trials) == optimization_config.trial_count
+    assert len(result.study.trials) == requested_trials
     assert result.study.best_trial.state.name == "COMPLETE"
     assert all(trial.user_attrs["valid"] for trial in result.study.trials)
     assert result.pareto_frontier
     assert all(point.cited_sources for point in result.pareto_frontier)
     assert [item.iteration for item in progress] == list(
-        range(1, optimization_config.trial_count + 1)
+        range(1, requested_trials + 1)
     )
+    assert all(item.total_iterations == requested_trials for item in progress)
     assert progress[-1].best_score == pytest.approx(result.study.best_value)
     assert progress[-1].critique.cited_sources == ("synthetic:test-source",)
 
