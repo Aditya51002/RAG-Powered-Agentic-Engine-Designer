@@ -23,6 +23,7 @@ COPY data/evaluation ./data/evaluation
 COPY scripts ./scripts
 
 RUN python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
     && python -m pip install --no-cache-dir '.[api,knowledge,embeddings]'
 
 USER ragphy

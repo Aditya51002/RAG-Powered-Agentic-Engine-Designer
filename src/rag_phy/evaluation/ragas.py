@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, ClassVar, Protocol
@@ -20,7 +21,7 @@ class RagasBackend(Protocol):
     """Metric adapter; injectable so orchestration/tests need no provider credentials."""
 
     def evaluate(self, samples: list[dict[str, Any]]) -> Mapping[str, float]:
-        """Evaluate standard RAGAS sample dictionaries and return aggregate scores."""
+        """Score answerable context metrics and faithfulness over all answerability classes."""
 
 
 class EvaluationReport(BaseModel):
@@ -60,10 +61,15 @@ class ConfiguredRagasBackend:
         self._embeddings = embeddings
 
     def evaluate(self, samples: list[dict[str, Any]]) -> Mapping[str, float]:
-        """Invoke RAGAS lazily, keeping its optional dependency out of core installs."""
+        """Evaluate context metrics on answerable items and faithfulness on every item."""
         try:
             from ragas import EvaluationDataset, evaluate
-            from ragas.metrics.collections import ContextPrecision, ContextRecall, Faithfulness
+
+            # RAGAS evaluate() in the pinned 0.4 API accepts legacy Metric classes, not
+            # metrics.collections.BaseMetric. Keep this import aligned with that runner.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                from ragas.metrics import ContextPrecision, ContextRecall, Faithfulness
         except ImportError as exc:
             raise RuntimeError("Install rag-phy[evaluation] to run RAGAS metrics") from exc
 
@@ -72,19 +78,52 @@ class ConfiguredRagasBackend:
             "context_recall": ContextRecall,
             "faithfulness": Faithfulness,
         }
-        metrics = [metric_types[name](llm=self._llm) for name in self._metric_names]
-        dataset = EvaluationDataset.from_list(samples)
-        result = evaluate(
-            dataset=dataset,
-            metrics=metrics,
-            llm=self._llm,
-            embeddings=self._embeddings,
-            raise_exceptions=True,
-            show_progress=False,
+        answerable = [sample for sample in samples if sample.get("answerable", True)]
+        scores: dict[str, float] = {}
+
+        def run_metrics(names: Sequence[str], rows: list[dict[str, Any]]) -> None:
+            if not names:
+                return
+            metrics = [metric_types[name](llm=self._llm) for name in names]
+            result = evaluate(
+                dataset=EvaluationDataset.from_list(rows),
+                metrics=metrics,
+                llm=self._llm,
+                embeddings=self._embeddings,
+                raise_exceptions=True,
+                show_progress=False,
+            )
+            frame = result.to_pandas()
+            means = frame.mean(numeric_only=True).to_dict()
+            for name in names:
+                if name not in means:
+                    raise ValueError(f"RAGAS evaluation returned no score for {name!r}")
+                scores[name] = float(means[name])
+
+        context_names = tuple(
+            name for name in self._metric_names if name in {"context_precision", "context_recall"}
         )
-        frame = result.to_pandas()
-        scores = frame.mean(numeric_only=True).to_dict()
-        return {str(name): float(value) for name, value in scores.items()}
+        faithfulness_requested = "faithfulness" in self._metric_names
+        context_rows = [
+            {
+                "user_input": sample["user_input"],
+                "retrieved_contexts": sample["retrieved_contexts"],
+                "response": sample["response"],
+                "reference": sample["reference"],
+            }
+            for sample in answerable
+        ]
+        faithfulness_rows = [
+            {
+                "user_input": sample["user_input"],
+                "retrieved_contexts": sample["retrieved_contexts"],
+                "response": sample["response"],
+            }
+            for sample in samples
+        ]
+        run_metrics(context_names, context_rows)
+        run_metrics(("faithfulness",) if faithfulness_requested else (), faithfulness_rows)
+        return scores
 
 
 def evaluate_dataset(
@@ -103,15 +142,15 @@ def evaluate_dataset(
     unanswerable_count = 0
     for case in dataset.cases:
         output = target.answer(case.question)
+        sample: dict[str, Any] = {
+            "user_input": case.question,
+            "retrieved_contexts": [context.text for context in output.retrieved_contexts],
+            "response": output.answer,
+            "answerable": case.answerable,
+        }
         if case.answerable:
-            samples.append(
-                {
-                    "user_input": case.question,
-                    "retrieved_contexts": [context.text for context in output.retrieved_contexts],
-                    "response": output.answer,
-                    "reference": case.reference_answer,
-                }
-            )
+            sample["reference"] = case.reference_answer
+        samples.append(sample)
         relevant = set(case.relevant_source_ids)
         retrieved = {context.source_id for context in output.retrieved_contexts}
         if case.answerable:
@@ -122,7 +161,7 @@ def evaluate_dataset(
             unanswerable_empty_count += int(not retrieved)
             unanswerable_abstention_count += int(output.abstained)
 
-    if not samples:
+    if not any(case.answerable for case in dataset.cases):
         raise ValueError("RAGAS scoring requires at least one answerable case")
 
     raw_scores = backend.evaluate(samples)

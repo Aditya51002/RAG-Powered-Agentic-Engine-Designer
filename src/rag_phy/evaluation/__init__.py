@@ -20,11 +20,13 @@ from rag_phy.evaluation.ragas import (
     evaluate_dataset,
     save_evaluation_report,
 )
+from rag_phy.evaluation.target import GroundedRAGEvaluationTarget
 
 __all__ = [
     "AnswerWithContexts",
     "ConfiguredRagasBackend",
     "EvaluationReport",
+    "GroundedRAGEvaluationTarget",
     "LabeledQACase",
     "LabeledQADataset",
     "RetrievedContext",

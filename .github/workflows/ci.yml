@@ -21,7 +21,8 @@ jobs:
           python -m pip install -e
           '.[dev,knowledge,optimization,evaluation,app,api,llm]'
       - run: python scripts/validate_curated_data.py
+      - run: python scripts/validate_physics_bounds.py
       - run: python scripts/validate_qa_dataset.py
       - run: pytest -q
-      - run: ruff check --ignore EXE002,TRY004,UP035 src tests
-      - run: mypy src/rag_phy
+      - run: ruff check --ignore EXE002,TRY004,UP035 src tests scripts
+      - run: mypy src/rag_phy scripts

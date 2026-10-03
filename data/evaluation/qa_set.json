@@ -1,13 +1,13 @@
 {
-  "dataset_version": "0.2.0-draft",
+  "dataset_version": "0.2.1-draft",
   "source_corpus_version": "sha256:2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
   "label_review_status": "draft",
   "cases": [
     {
       "id": "nasa-cmc-001",
-      "question": "What operating environments and duration did the five NASA SiC/SiC composite systems demonstrate?",
+      "question": "What capability does the report summary attribute to the five NASA SiC/SiC systems in mechanical and oxidizing environments?",
       "answerable": true,
-      "reference_answer": "The report describes five SiC-fiber-reinforced SiC-matrix systems that operated under mechanical loading and oxidizing conditions for hundreds of hours at 1204, 1315, and 1427 C.",
+      "reference_answer": "The summary says the five systems were developed to operate under mechanical loading and oxidizing conditions for hundreds of hours across upper-use temperatures of 1204, 1315, and 1427 C. Those temperatures apply across the systems collectively; it does not claim that every system demonstrated every temperature.",
       "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"]
     },
     {
@@ -61,7 +61,7 @@
     },
     {
       "id": "nasa-cmc-009",
-      "question": "Compare the listed upper-use temperature and room-temperature panel density for N22 and N26-A.",
+      "question": "Compare the listed upper-use temperature and panel density for N22 and N26-A.",
       "answerable": true,
       "reference_answer": "N22 is listed at 1204 C and 2.85 g/cc; N26-A is listed at 1427 C and 2.52 g/cc.",
       "relevant_source_ids": ["data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"]
