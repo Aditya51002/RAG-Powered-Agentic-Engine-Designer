@@ -79,6 +79,7 @@ def test_objective_uses_known_weighted_score_and_severity_penalty() -> None:
     assert candidate.compressor_pressure_ratio == 6.0
     assert valid.thrust_to_weight_ratio == pytest.approx(2.0)
     assert valid.score == pytest.approx(1.0)
+    assert objective.score_feasible(_performance(), 10000.0) == pytest.approx(valid.score)
     assert valid.penalty == 0.0
     assert invalid_mild.score == pytest.approx(-0.1)
     assert invalid_mild.penalty == pytest.approx(1.1)

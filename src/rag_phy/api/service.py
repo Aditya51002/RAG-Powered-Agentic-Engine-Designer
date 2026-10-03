@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 import uuid
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -46,9 +47,17 @@ class DesignRunExecutor(Protocol):
 class KnowledgeSearchResult(Protocol):
     """Minimum passage surface mapped into the public knowledge response."""
 
-    text: str
-    source_refs: Sequence[str]
-    distance: float
+    @property
+    def text(self) -> str:
+        """Retrieved passage text."""
+
+    @property
+    def source_refs(self) -> Sequence[str]:
+        """Stable corpus references that support this passage."""
+
+    @property
+    def distance(self) -> float:
+        """Vector-store distance for the retrieved passage."""
 
 
 class APIConfigurationError(RuntimeError):
@@ -75,9 +84,19 @@ def create_app(
         valid_id = bool(re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", supplied_id))
         correlation_id = supplied_id if valid_id else uuid.uuid4().hex
         token = request_id_context.set(correlation_id)
+        started_at = time.perf_counter()
         try:
             response = await call_next(request)
             response.headers["x-request-id"] = correlation_id
+            logger.info(
+                "API request completed",
+                extra={
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status_code": response.status_code,
+                    "duration_seconds": time.perf_counter() - started_at,
+                },
+            )
             return response
         finally:
             request_id_context.reset(token)

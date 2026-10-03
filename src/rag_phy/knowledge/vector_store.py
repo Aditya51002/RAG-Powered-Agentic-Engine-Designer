@@ -148,12 +148,14 @@ class ChromaVectorStore:
         return retrieved
 
     def check_ready(self) -> None:
-        """Issue a lightweight collection operation to verify the backing store responds."""
+        """Verify the backing store responds and its configured collection is populated."""
         try:
-            self._collection.count()
+            record_count = self._collection.count()
         except Exception as exc:
             logger.exception("Chroma readiness check failed")
             raise VectorStoreError("Configured Chroma collection is not reachable") from exc
+        if record_count == 0:
+            raise VectorStoreError("Configured Chroma collection is empty")
 
 
 __all__ = ["ChromaVectorStore", "RetrievalResult", "VectorStore", "VectorStoreError"]

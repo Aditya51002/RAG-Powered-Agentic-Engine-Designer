@@ -47,21 +47,8 @@ class DesignObjective:
         Invalid designs subtract `base_penalty + severity_weight * normalized_severity`;
         the severity is supplied by deterministic structured checks, never by an LLM.
         """
-        values = (
-            performance.thrust_n,
-            performance.specific_fuel_consumption_kg_per_n_s,
-            engine_weight_n,
-        )
-        if not all(math.isfinite(value) and value > 0 for value in values):
-            raise ObjectiveInputError(
-                "Thrust, SFC, and estimated engine weight must be finite positive values"
-            )
+        base_score = self.score_feasible(performance, engine_weight_n)
         ratio = performance.thrust_n / engine_weight_n
-        normalized_ttw = ratio / self._config.thrust_to_weight_reference
-        normalized_sfc = (
-            performance.specific_fuel_consumption_kg_per_n_s
-            / self._config.specific_fuel_consumption_reference_kg_per_n_s
-        )
         valid = critique.valid and bool(critique.cited_sources)
         penalty = 0.0
         if not valid:
@@ -70,11 +57,7 @@ class DesignObjective:
                 + self._config.invalid_severity_penalty_weight
                 * critique.normalized_violation_severity
             )
-        score = (
-            self._config.thrust_to_weight_weight * normalized_ttw
-            - self._config.specific_fuel_consumption_weight * normalized_sfc
-            - penalty
-        )
+        score = base_score - penalty
         if not math.isfinite(score):
             raise ObjectiveInputError("Objective score is not finite")
         result = ObjectiveResult(
@@ -96,6 +79,31 @@ class DesignObjective:
             },
         )
         return result
+
+    def score_feasible(self, performance: CycleResult, engine_weight_n: float) -> float:
+        """Score metrics under the feasible-design objective, without a critique penalty."""
+        values = (
+            performance.thrust_n,
+            performance.specific_fuel_consumption_kg_per_n_s,
+            engine_weight_n,
+        )
+        if not all(math.isfinite(value) and value > 0 for value in values):
+            raise ObjectiveInputError(
+                "Thrust, SFC, and estimated engine weight must be finite positive values"
+            )
+        ratio = performance.thrust_n / engine_weight_n
+        normalized_ttw = ratio / self._config.thrust_to_weight_reference
+        normalized_sfc = (
+            performance.specific_fuel_consumption_kg_per_n_s
+            / self._config.specific_fuel_consumption_reference_kg_per_n_s
+        )
+        score = (
+            self._config.thrust_to_weight_weight * normalized_ttw
+            - self._config.specific_fuel_consumption_weight * normalized_sfc
+        )
+        if not math.isfinite(score):
+            raise ObjectiveInputError("Feasible objective score is not finite")
+        return score
 
 
 __all__ = ["DesignObjective", "ObjectiveInputError", "ObjectiveResult"]
