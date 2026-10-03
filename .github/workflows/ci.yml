@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: >-
+          python -m pip install -e
+          '.[dev,knowledge,optimization,evaluation,app,api,llm]'
+      - run: python scripts/validate_curated_data.py
+      - run: python scripts/validate_qa_dataset.py
+      - run: pytest -q
+      - run: ruff check --ignore EXE002,TRY004,UP035 src tests
+      - run: mypy src/rag_phy

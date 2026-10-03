@@ -177,10 +177,16 @@ class OptunaOptimizer:
         )
         cached = self._evaluated_candidates.get(signature)
         if cached is not None:
-            objective_result, critique, performance = cached
+            objective_result, cached_critique, cached_performance = cached
             trial.set_user_attr("duplicate_evaluation_reused", True)
-            self._set_trial_metrics(trial, objective_result, candidate, critique)
-            publish_progress(trial, candidate, performance, critique, objective_result)
+            self._set_trial_metrics(trial, objective_result, candidate, cached_critique)
+            publish_progress(
+                trial,
+                candidate,
+                cached_performance,
+                cached_critique,
+                objective_result,
+            )
             logger.info(
                 "Reused prior evaluation for canonical duplicate design",
                 extra={"trial": trial.number, "candidate_signature": signature},

@@ -1,5 +1,9 @@
 """Optuna-backed design-space optimization."""
 
+from rag_phy.optimization.inputs import (
+    ConfiguredCandidateSampler,
+    SourcedEngineWeightEstimator,
+)
 from rag_phy.optimization.objective import (
     DesignObjective,
     ObjectiveInputError,
@@ -17,6 +21,7 @@ from rag_phy.optimization.study import (
 
 __all__ = [
     "CandidateSampler",
+    "ConfiguredCandidateSampler",
     "DesignObjective",
     "EngineWeightEstimator",
     "ObjectiveInputError",
@@ -27,4 +32,5 @@ __all__ = [
     "OptunaOptimizer",
     "ParetoFrontier",
     "ParetoPoint",
+    "SourcedEngineWeightEstimator",
 ]

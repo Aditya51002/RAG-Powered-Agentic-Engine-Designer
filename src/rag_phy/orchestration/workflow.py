@@ -6,7 +6,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass
-from typing import Any, Protocol, TypedDict
+from typing import Any, Protocol, TypedDict, cast
 
 from langgraph.graph import END, START, StateGraph
 
@@ -19,9 +19,9 @@ from rag_phy.agents import (
     ProposalError,
 )
 from rag_phy.config import OrchestrationConfig, PhysicsConfig
+from rag_phy.orchestration.tracing import WorkflowTraceSink, new_trace_event
 from rag_phy.physics.cycle import simulate_cycle
 from rag_phy.physics.models import CycleInput, CycleResult
-from rag_phy.orchestration.tracing import WorkflowTraceSink, new_trace_event
 
 logger = logging.getLogger(__name__)
 
@@ -381,12 +381,14 @@ class DesignWorkflow:
         **values: object,
     ) -> WorkflowState:
         """Return a partial state update and append one structured audit event."""
-        update: WorkflowState = dict(values)
+        update = cast(WorkflowState, dict(values))
+        raw_iteration = values.get("iteration_count", state.get("iteration_count", 0))
+        iteration = raw_iteration if isinstance(raw_iteration, int) else 0
         update["transition_history"] = [
             *state.get("transition_history", []),
             WorkflowEvent(
                 node,
-                int(values.get("iteration_count", state.get("iteration_count", 0))),
+                iteration,
                 message,
             ),
         ]
@@ -395,7 +397,7 @@ class DesignWorkflow:
                 state.get("trace_id", ""),
                 state.get("last_span_id"),
                 node,
-                int(values.get("iteration_count", state.get("iteration_count", 0))),
+                iteration,
                 message,
             )
             self._trace_sink.emit(trace_event)
@@ -405,7 +407,7 @@ class DesignWorkflow:
             extra={
                 "node": node,
                 "iteration": state.get("iteration_count", 0),
-                "message": message,
+                "transition_message": message,
             },
         )
         return update

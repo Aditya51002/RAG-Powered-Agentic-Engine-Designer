@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -33,6 +34,29 @@ class DashboardConfig(BaseModel):
         return self
 
 
+class LLMConfig(BaseModel):
+    """Anthropic request policy, pricing metadata, and environment-injected secret."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    provider: Literal["anthropic"]
+    api_key: str | None = Field(default=None, repr=False, exclude=True)
+    model_name: str = Field(min_length=1)
+    max_tokens: int = Field(gt=0)
+    timeout_seconds: float = Field(gt=0, allow_inf_nan=False)
+    transient_retry_attempts: int = Field(ge=0)
+    retry_initial_delay_seconds: float = Field(ge=0, allow_inf_nan=False)
+    retry_max_delay_seconds: float = Field(gt=0, allow_inf_nan=False)
+    input_cost_usd_per_million_tokens: float = Field(ge=0, allow_inf_nan=False)
+    output_cost_usd_per_million_tokens: float = Field(ge=0, allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def validate_retry_delay_order(self) -> LLMConfig:
+        if self.retry_initial_delay_seconds > self.retry_max_delay_seconds:
+            raise ValueError("Initial retry delay cannot exceed retry maximum delay")
+        return self
+
+
 class AppConfig(BaseModel):
     """Validated settings shared across the application."""
 
@@ -40,6 +64,7 @@ class AppConfig(BaseModel):
 
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     dashboard: DashboardConfig = Field(default_factory=DashboardConfig)
+    llm: LLMConfig | None = None
 
 
 class ComponentEfficiencies(BaseModel):
@@ -188,6 +213,101 @@ class OptimizationConfig(BaseModel):
     objective: ObjectiveConfig
 
 
+class SourcedRange(BaseModel):
+    """Search interval with units, sampling strategy, and auditable source IDs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+
+    minimum: float
+    maximum: float
+    unit: str = Field(min_length=1)
+    strategy: Literal["uniform", "log_uniform"]
+    source_ids: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_interval(self) -> SourcedRange:
+        if self.minimum >= self.maximum:
+            raise ValueError("Search range minimum must be below maximum")
+        if self.strategy == "log_uniform" and self.minimum <= 0:
+            raise ValueError("Log-uniform search ranges must be positive")
+        return self
+
+
+class SourcedMaterialOption(BaseModel):
+    """Material category tied to the source supporting its constraint record."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+
+
+class CandidateSearchConfig(BaseModel):
+    """Fully sourced bounds for every continuous and categorical candidate field."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    ambient_temperature_k: SourcedRange
+    ambient_pressure_pa: SourcedRange
+    flight_speed_m_per_s: SourcedRange
+    air_mass_flow_kg_per_s: SourcedRange
+    compressor_pressure_ratio: SourcedRange
+    turbine_inlet_temperature_k: SourcedRange
+    hot_section_materials: tuple[SourcedMaterialOption, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_physical_order(self) -> CandidateSearchConfig:
+        expected_units = {
+            "ambient_temperature_k": "K",
+            "ambient_pressure_pa": "Pa",
+            "flight_speed_m_per_s": "m/s",
+            "air_mass_flow_kg_per_s": "kg/s",
+            "compressor_pressure_ratio": "1",
+            "turbine_inlet_temperature_k": "K",
+        }
+        for field_name, unit in expected_units.items():
+            if getattr(self, field_name).unit != unit:
+                raise ValueError(f"{field_name} bounds must use {unit}")
+        if self.ambient_temperature_k.minimum <= 0:
+            raise ValueError("Ambient temperature bounds must be positive")
+        if self.ambient_pressure_pa.minimum <= 0:
+            raise ValueError("Ambient pressure bounds must be positive")
+        if self.flight_speed_m_per_s.minimum < 0:
+            raise ValueError("Flight speed cannot be negative")
+        if self.air_mass_flow_kg_per_s.minimum <= 0:
+            raise ValueError("Air mass flow bounds must be positive")
+        if self.compressor_pressure_ratio.minimum <= 1:
+            raise ValueError("Compressor pressure ratio must exceed one")
+        if self.turbine_inlet_temperature_k.minimum <= self.ambient_temperature_k.maximum:
+            raise ValueError("Sampled turbine inlet temperature must exceed all ambient bounds")
+        return self
+
+
+class EngineWeightAnchor(BaseModel):
+    """Published engine thrust and dry-weight pair used by the lookup estimator."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+
+    rated_thrust_n: float = Field(gt=0)
+    dry_weight_n: float = Field(gt=0)
+    source_id: str = Field(min_length=1)
+
+
+class EngineWeightLookupConfig(BaseModel):
+    """Sourced anchors for interpolation within, but never beyond, observed engine data."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    anchors: tuple[EngineWeightAnchor, ...] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def validate_anchor_order(self) -> EngineWeightLookupConfig:
+        thrust_values = [anchor.rated_thrust_n for anchor in self.anchors]
+        if len(set(thrust_values)) != len(thrust_values):
+            raise ValueError("Engine-weight anchors must have unique rated thrust values")
+        return self
+
+
 class EvaluationConfig(BaseModel):
     """Evaluation dataset, reports, and persistent workflow trace paths."""
 
@@ -243,7 +363,7 @@ def _parse_environment_value(value: str) -> Any:
         raise ValueError(f"Invalid YAML environment value: {value!r}") from exc
 
 
-def _apply_environment_overrides(data: dict[str, Any], environ: dict[str, str]) -> None:
+def _apply_environment_overrides(data: dict[str, Any], environ: Mapping[str, str]) -> None:
     """Apply RAG_PHY_* nested overrides to the YAML mapping in place."""
     prefix = "RAG_PHY_"
     for key, raw_value in environ.items():
@@ -261,7 +381,7 @@ def _apply_environment_overrides(data: dict[str, Any], environ: dict[str, str]) 
         target[segments[-1]] = _parse_environment_value(raw_value)
 
 
-def load_config(path: str | Path, environ: dict[str, str] | None = None) -> AppConfig:
+def load_config(path: str | Path, environ: Mapping[str, str] | None = None) -> AppConfig:
     """Load typed settings from a YAML file and RAG_PHY_* environment overrides.
 
     Args:
@@ -387,6 +507,40 @@ def load_optimization_config(path: str | Path) -> OptimizationConfig:
     return OptimizationConfig.model_validate(_load_yaml_mapping(path))
 
 
+def load_candidate_search_config(
+    path: str | Path,
+    source_ledger_path: str | Path = "data/curated/sources.md",
+) -> CandidateSearchConfig:
+    """Load sourced sampler bounds and ensure every provenance key exists in the ledger."""
+    config = CandidateSearchConfig.model_validate(_load_yaml_mapping(path))
+    _validate_source_ids(
+        (
+            source_id
+            for field_name in CandidateSearchConfig.model_fields
+            if field_name != "hot_section_materials"
+            for source_id in getattr(config, field_name).source_ids
+        ),
+        source_ledger_path,
+    )
+    _validate_source_ids(
+        (material.source_id for material in config.hot_section_materials),
+        source_ledger_path,
+    )
+    return config
+
+
+def load_engine_weight_lookup_config(
+    path: str | Path,
+    source_ledger_path: str | Path = "data/curated/sources.md",
+) -> EngineWeightLookupConfig:
+    """Load source-backed engine anchors and ensure provenance keys resolve."""
+    config = EngineWeightLookupConfig.model_validate(_load_yaml_mapping(path))
+    _validate_source_ids(
+        (anchor.source_id for anchor in config.anchors), source_ledger_path
+    )
+    return config
+
+
 def load_evaluation_config(path: str | Path) -> EvaluationConfig:
     """Load evaluation dataset, report, and tracing paths from YAML.
 
@@ -412,17 +566,35 @@ def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
     return loaded
 
 
+def _validate_source_ids(source_ids: Any, ledger_path: str | Path) -> None:
+    """Require every configuration source ID to have a heading in the source ledger."""
+    ledger = Path(ledger_path)
+    text = ledger.read_text(encoding="utf-8")
+    headings = {
+        line[3:].strip()
+        for line in text.splitlines()
+        if line.startswith("## ")
+    }
+    missing = sorted(set(source_ids) - headings)
+    if missing:
+        raise ValueError(f"Unresolved source IDs in {ledger}: {', '.join(missing)}")
+
+
 __all__ = [
     "AgentPromptsConfig",
     "AppConfig",
+    "CandidateSearchConfig",
     "ChunkingConfig",
     "ComponentEfficiencies",
     "CritiqueAgentConfig",
     "DashboardConfig",
     "DesignAgentConfig",
     "EmbeddingConfig",
+    "EngineWeightAnchor",
+    "EngineWeightLookupConfig",
     "EvaluationConfig",
     "KnowledgeConfig",
+    "LLMConfig",
     "LoggingConfig",
     "ModelsConfig",
     "NumericalConfig",
@@ -430,10 +602,14 @@ __all__ = [
     "OptimizationConfig",
     "OrchestrationConfig",
     "PhysicsConfig",
+    "SourcedMaterialOption",
+    "SourcedRange",
     "ValidationError",
     "VectorStoreConfig",
     "load_agent_prompts_config",
+    "load_candidate_search_config",
     "load_config",
+    "load_engine_weight_lookup_config",
     "load_evaluation_config",
     "load_knowledge_config",
     "load_models_config",

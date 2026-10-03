@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any, Protocol
 
 from rag_phy.agents import CritiqueResult, DesignCandidate
@@ -175,7 +175,7 @@ def _render_update_detail(st: Any, update: DashboardProgress) -> None:
             st.write({"objective_score": update.score})
         if update.performance is not None:
             st.write("Cycle performance")
-            st.json(update.performance.model_dump(mode="json"))
+            st.json(asdict(update.performance))
         st.write(update.critique.reasoning)
         if update.critique.cited_sources:
             st.markdown("**Citations**")

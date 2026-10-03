@@ -1,5 +1,12 @@
 """Design and critique agents."""
 
+from rag_phy.agents.anthropic_client import AnthropicLLMClient
+from rag_phy.agents.critique import (
+    CritiqueAgent,
+    CritiqueExplainer,
+    CritiqueExplanationError,
+    CritiqueResult,
+)
 from rag_phy.agents.design import (
     CandidateRejection,
     DesignAgent,
@@ -10,18 +17,13 @@ from rag_phy.agents.design import (
     ProposalError,
     ProposalExhaustedError,
 )
-from rag_phy.agents.critique import (
-    CritiqueAgent,
-    CritiqueExplanationError,
-    CritiqueExplainer,
-    CritiqueResult,
-)
 
 __all__ = [
+    "AnthropicLLMClient",
     "CandidateRejection",
     "CritiqueAgent",
-    "CritiqueExplanationError",
     "CritiqueExplainer",
+    "CritiqueExplanationError",
     "CritiqueResult",
     "DesignAgent",
     "DesignCandidate",

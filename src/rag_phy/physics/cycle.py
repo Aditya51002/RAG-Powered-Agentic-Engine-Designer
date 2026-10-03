@@ -238,6 +238,7 @@ def simulate_cycle(
 
     assert nozzle_exit.exit_velocity_m_per_s is not None
     assert nozzle_exit.exit_area_m2 is not None
+    assert nozzle_exit.static_pressure_pa is not None
     exhaust_velocity = nozzle_exit.exit_velocity_m_per_s
     exhaust_mass_flow = inputs.air_mass_flow_kg_per_s * (1 + combustor_exit.fuel_air_ratio)
     thrust = (

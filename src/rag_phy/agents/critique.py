@@ -195,7 +195,7 @@ class CritiqueAgent:
 
 __all__ = [
     "CritiqueAgent",
-    "CritiqueExplanationError",
     "CritiqueExplainer",
+    "CritiqueExplanationError",
     "CritiqueResult",
 ]

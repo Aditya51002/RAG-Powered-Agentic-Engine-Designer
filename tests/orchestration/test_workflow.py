@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
 from typing import Any
 
 from rag_phy.agents import CritiqueResult, DesignCandidate
 from rag_phy.config import load_orchestration_config, load_physics_config
-from rag_phy.orchestration.workflow import DesignWorkflow
 from rag_phy.orchestration.tracing import JsonlTraceSink
+from rag_phy.orchestration.workflow import DesignWorkflow
 from rag_phy.physics.models import CycleResult
 
 
@@ -157,7 +157,10 @@ def test_graph_has_explicit_workflow_nodes() -> None:
     assert {"propose", "simulate", "critique", "revise", "score", "optimizer_step"} <= node_names
 
 
-def test_jsonl_trace_sink_records_correlated_workflow_transitions(tmp_path: Path) -> None:
+def test_jsonl_trace_sink_records_correlated_workflow_transitions(
+    tmp_path: Path, caplog
+) -> None:
+    caplog.set_level("INFO", logger="rag_phy.orchestration.workflow")
     trace_path = tmp_path / "trace" / "workflow.jsonl"
     design = SequenceDesignAgent([_candidate(5.0)])
     workflow = _workflow(
@@ -173,3 +176,12 @@ def test_jsonl_trace_sink_records_correlated_workflow_transitions(tmp_path: Path
     assert len({event["trace_id"] for event in events}) == 1
     assert events[0]["parent_span_id"] is None
     assert events[1]["parent_span_id"] == events[0]["span_id"]
+    transitions = [
+        record
+        for record in caplog.records
+        if record.name == "rag_phy.orchestration.workflow"
+    ]
+    assert transitions
+    assert transitions[0].transition_message == (
+        "Candidate proposal accepted by schema and duplicate checks"
+    )

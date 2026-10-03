@@ -4,3 +4,16 @@ logging:
 dashboard:
   # Deployment-owned factory; intentionally unset until real provider/data adapters exist.
   service_factory: null
+llm:
+  provider: anthropic
+  api_key: null
+  model_name: claude-sonnet-5
+  max_tokens: 2048
+  timeout_seconds: 30
+  transient_retry_attempts: 3
+  retry_initial_delay_seconds: 1
+  retry_max_delay_seconds: 8
+  # Anthropic Claude Sonnet 5 list pricing; update with provider pricing changes.
+  # https://platform.claude.com/docs/en/models/overview
+  input_cost_usd_per_million_tokens: 2
+  output_cost_usd_per_million_tokens: 10

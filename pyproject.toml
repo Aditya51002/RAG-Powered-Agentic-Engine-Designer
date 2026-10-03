@@ -17,6 +17,8 @@ dependencies = [
 dev = [
     "pytest>=8.0,<9",
     "hypothesis>=6.100,<7",
+    "mypy>=1.10,<2",
+    "types-PyYAML>=6.0",
 ]
 knowledge = [
     "chromadb>=1.0,<2",
@@ -38,6 +40,15 @@ evaluation = [
 ]
 app = [
     "streamlit>=1.35,<2",
+    "requests>=2.31,<3",
+]
+llm = [
+    "anthropic>=0.70,<2",
+]
+api = [
+    "fastapi>=0.115,<1",
+    "httpx>=0.27,<1",
+    "uvicorn>=0.30,<1",
 ]
 
 [tool.setuptools.packages.find]
@@ -50,3 +61,14 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = ["numpy.*"]
+follow_imports = "skip"

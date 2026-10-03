@@ -6,7 +6,7 @@ import logging
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ def cumulative_validity_rate(
     return tuple(points)
 
 
-def validity_observations_from_study(study: object) -> tuple[ValidityObservation, ...]:
+def validity_observations_from_study(study: Any) -> tuple[ValidityObservation, ...]:
     """Extract completed Optuna outcomes; fail if a completed trial lacks validity metadata."""
     try:
         from optuna.trial import TrialState
