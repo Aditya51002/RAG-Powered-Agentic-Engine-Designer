@@ -30,7 +30,7 @@ class AnthropicLLMClient:
     only transient transport/API failures, using a separate configured retry budget.
     """
 
-    _RETRYABLE_STATUSES = frozenset({408, 429, 500, 502, 503, 504, 529})
+    _RETRYABLE_STATUSES = frozenset({408, 409, 429, 500, 502, 503, 504, 529})
     _RETRYABLE_EXCEPTION_NAMES = frozenset(
         {"APIConnectionError", "APITimeoutError", "TimeoutError", "ConnectionError"}
     )
@@ -110,6 +110,8 @@ class AnthropicLLMClient:
                             "provider": "anthropic",
                             "model": self._config.model_name,
                             "transient_retry_count": attempt,
+                            "latency_ms": round((self._monotonic() - started) * 1000, 3),
+                            "provider_request_id": self._provider_request_id(exc),
                         },
                     )
                     raise LLMClientError("Anthropic completion failed") from exc
@@ -144,6 +146,18 @@ class AnthropicLLMClient:
         if status is None:
             status = getattr(getattr(error, "response", None), "status_code", None)
         return status if isinstance(status, int) else None
+
+    @staticmethod
+    def _provider_request_id(error: Exception) -> str | None:
+        request_id = getattr(error, "request_id", None)
+        if isinstance(request_id, str):
+            return request_id
+        response = getattr(error, "response", None)
+        headers = getattr(response, "headers", {})
+        if hasattr(headers, "get"):
+            value = headers.get("request-id") or headers.get("anthropic-request-id")
+            return value if isinstance(value, str) else None
+        return None
 
     @classmethod
     def _is_retryable(cls, error: Exception) -> bool:

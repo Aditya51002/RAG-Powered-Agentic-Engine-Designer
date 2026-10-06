@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "engine_name": "J85 turbojet example (variant not specified in Table 1)",
+  "source_ids": [
+    "NASA-CR-20170000884-J85-MODEL",
+    "NIST-SP811-UNIT-CONVERSIONS"
+  ],
+  "source_locator": "NASA/CR-2017-000884, Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)",
+  "published_values": {
+    "altitude_ft": 0,
+    "ambient_temperature_rankine": 518.67,
+    "ambient_pressure_psia": 14.696,
+    "mach_number": 0,
+    "net_thrust_lbf": 2850,
+    "specific_fuel_consumption_lbm_per_hour_lbf": 0.99,
+    "shaft_speed_rpm": 16540,
+    "air_mass_flow_lbm_per_second": 44,
+    "compressor_pressure_ratio": 7,
+    "turbine_inlet_temperature_rankine": 2100
+  },
+  "cycle_input_si": {
+    "ambient_temperature_k": 288.15,
+    "ambient_pressure_pa": 101325.35318039692,
+    "flight_speed_m_per_s": 0,
+    "air_mass_flow_kg_per_s": 19.95806428,
+    "compressor_pressure_ratio": 7,
+    "turbine_inlet_temperature_k": 1166.6666666666667
+  },
+  "reference_performance_si": {
+    "thrust_n": 12677.431603492423,
+    "specific_fuel_consumption_kg_per_n_s": 2.804219585689303e-05
+  },
+  "conversion_note": "SI fields are conversions of the published values using the factors identified by NIST-SP811-UNIT-CONVERSIONS. The source values are rounded; converted digits do not imply additional measurement precision."
+}

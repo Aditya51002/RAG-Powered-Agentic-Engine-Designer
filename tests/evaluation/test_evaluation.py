@@ -82,6 +82,7 @@ def _dataset() -> LabeledQADataset:
             LabeledQACase(
                 id="test-case-1",
                 question="Synthetic question?",
+                answerable=True,
                 reference_answer="Synthetic reference answer.",
                 relevant_source_ids=("test:relevant",),
             ),
@@ -168,6 +169,7 @@ def test_evaluation_separates_unanswerable_retrieval_and_abstention() -> None:
             LabeledQACase(
                 id="answerable",
                 question="Synthetic question?",
+                answerable=True,
                 reference_answer="Synthetic reference answer.",
                 relevant_source_ids=("test:relevant",),
             ),
@@ -326,6 +328,7 @@ def test_dataset_rejects_duplicate_case_ids_and_empty_answerable_sources() -> No
     case = LabeledQACase(
         id="same",
         question="Question?",
+        answerable=True,
         reference_answer="Answer.",
         relevant_source_ids=("source:one",),
     )
@@ -335,6 +338,7 @@ def test_dataset_rejects_duplicate_case_ids_and_empty_answerable_sources() -> No
         LabeledQACase(
             id="empty-source",
             question="Question?",
+            answerable=True,
             reference_answer="Answer.",
         )
 
@@ -354,6 +358,18 @@ def test_unanswerable_cases_must_have_explicit_abstention_and_no_sources() -> No
             answerable=False,
             reference_answer="Unanswerable",
             relevant_source_ids=("source:one",),
+        )
+
+
+def test_each_qa_case_requires_an_explicit_answerability_label() -> None:
+    with pytest.raises(ValueError, match="answerable"):
+        LabeledQACase.model_validate(
+            {
+                "id": "missing-label",
+                "question": "Question?",
+                "reference_answer": "Answer.",
+                "relevant_source_ids": ["source:one"],
+            }
         )
 
 

@@ -27,6 +27,14 @@ uses them as configurable defaults. A real candidate sampler must not treat a si
 worked example as a verified feasible design space. The Phase 8 cycle-bound verification
 gate therefore remains open pending reviewed operating-domain sources.
 
+The J85 reference point in `data/curated/reference_engines/j85_takeoff.json` is a second,
+independent comparison, not a calibration. `python scripts/compare_reference_engine.py`
+records the currently configured model's thrust and SFC differences in
+`data/evaluation/j85_cycle_diagnostic.json`, with hashes of its input data and physics
+configuration. The J85 report's own component values were partly derived/tuned and include
+cooling flow not represented by this cycle model. Do not tune the generic model to this point
+or infer a design envelope from it without a reviewed engine-specific model and operating map.
+
 Run `python scripts/validate_physics_bounds.py` to check that every leaf in the physics
 configuration has exactly one assumptions-register entry, that the register's displayed
 value matches the config, and that every entry has an allowed evidence disposition. This

@@ -24,7 +24,7 @@ class LabeledQACase(BaseModel):
 
     id: str = Field(min_length=1)
     question: str = Field(min_length=1)
-    answerable: bool = True
+    answerable: bool
     reference_answer: str = Field(min_length=1)
     relevant_source_ids: tuple[str, ...] = ()
 

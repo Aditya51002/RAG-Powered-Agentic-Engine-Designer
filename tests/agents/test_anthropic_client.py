@@ -100,6 +100,58 @@ def test_transient_failures_stop_at_configured_budget() -> None:
     assert delays == [1, 2]
 
 
+def test_conflict_status_is_retried_and_failure_logs_latency_and_request_id(caplog) -> None:
+    caplog.set_level(logging.WARNING)
+    conflict = RuntimeError("conflict")
+    conflict.response = SimpleNamespace(
+        status_code=409,
+        headers={"request-id": "req-conflict"},
+    )
+    messages = _Messages([conflict, _response()])
+    delays = []
+    client = AnthropicLLMClient(
+        _config(),
+        sdk_client=SimpleNamespace(messages=messages),
+        sleep=delays.append,
+        monotonic=iter((10.0, 10.25, 10.5)).__next__,
+    )
+
+    assert client.complete("prompt") == "completion"
+    assert delays == [1]
+    assert len(messages.calls) == 2
+    retry_record = next(
+        record
+        for record in caplog.records
+        if record.getMessage() == "Retrying transient Anthropic API failure"
+    )
+    assert retry_record.status_code == 409
+
+
+def test_terminal_provider_failure_logs_elapsed_time_and_request_id(caplog) -> None:
+    caplog.set_level(logging.ERROR)
+    failure = RuntimeError("bad request")
+    failure.response = SimpleNamespace(
+        status_code=400,
+        headers={"request-id": "req-failed"},
+    )
+    client = AnthropicLLMClient(
+        _config(),
+        sdk_client=SimpleNamespace(messages=_Messages([failure])),
+        monotonic=iter((10.0, 10.125)).__next__,
+    )
+
+    with pytest.raises(LLMClientError):
+        client.complete("prompt")
+
+    record = next(
+        record
+        for record in caplog.records
+        if record.getMessage() == "Anthropic completion failed"
+    )
+    assert record.latency_ms == 125
+    assert record.provider_request_id == "req-failed"
+
+
 def test_non_transient_api_errors_are_not_retried() -> None:
     bad_request = RuntimeError("invalid request")
     bad_request.status_code = 400

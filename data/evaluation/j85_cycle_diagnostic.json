@@ -1,0 +1,55 @@
+{
+  "comparison_type": "diagnostic_only_not_model_validation",
+  "conversion_note": "SI fields are conversions of the published values using the factors identified by NIST-SP811-UNIT-CONVERSIONS. The source values are rounded; converted digits do not imply additional measurement precision.",
+  "cycle_input_si": {
+    "air_mass_flow_kg_per_s": 19.95806428,
+    "ambient_pressure_pa": 101325.35318039692,
+    "ambient_temperature_k": 288.15,
+    "compressor_pressure_ratio": 7.0,
+    "flight_speed_m_per_s": 0.0,
+    "turbine_inlet_temperature_k": 1166.6666666666667
+  },
+  "difference": {
+    "specific_fuel_consumption_kg_per_n_s": -3.4983564385808257e-06,
+    "specific_fuel_consumption_percent": -12.475329879421327,
+    "thrust_n": 1134.5260050067463,
+    "thrust_percent": 8.949178670340475
+  },
+  "engine_name": "J85 turbojet example (variant not specified in Table 1)",
+  "environment": {
+    "coolprop": "7.2.0",
+    "rag_phy": "0.1.0"
+  },
+  "input_sha256": {
+    "physics_config": "a99c91b5ba7b52fcab68fb0603b0203344af773cfcaa54843196501cd7ae9044",
+    "reference_case": "2d495dc686f9893c5cbb8d64679d3ae22818a0fcad46477ed001957f7f7e5a31",
+    "source_ledger": "688a37fb2e56135d6808147c73a91fb4a44f6ee72b1bd1a056d3f1baad64ae8c"
+  },
+  "interpretation": "The configured generic cycle model and the NASA J85 example use different, partly assumed component models. This point comparison is a discrepancy diagnostic, not independent validation, a calibrated J85 simulation, or an operating envelope.",
+  "predicted_performance_si": {
+    "specific_fuel_consumption_kg_per_n_s": 2.4543839418312205e-05,
+    "thrust_n": 13811.95760849917
+  },
+  "published_values": {
+    "air_mass_flow_lbm_per_second": 44.0,
+    "altitude_ft": 0.0,
+    "ambient_pressure_psia": 14.696,
+    "ambient_temperature_rankine": 518.67,
+    "compressor_pressure_ratio": 7.0,
+    "mach_number": 0.0,
+    "net_thrust_lbf": 2850.0,
+    "shaft_speed_rpm": 16540.0,
+    "specific_fuel_consumption_lbm_per_hour_lbf": 0.99,
+    "turbine_inlet_temperature_rankine": 2100.0
+  },
+  "reference_performance_si": {
+    "specific_fuel_consumption_kg_per_n_s": 2.804219585689303e-05,
+    "thrust_n": 12677.431603492423
+  },
+  "schema_version": 1,
+  "source_ids": [
+    "NASA-CR-20170000884-J85-MODEL",
+    "NIST-SP811-UNIT-CONVERSIONS"
+  ],
+  "source_locator": "NASA/CR-2017-000884, Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)"
+}

@@ -14,7 +14,7 @@ llm:
   retry_initial_delay_seconds: 1
   retry_max_delay_seconds: 8
   # Anthropic Claude Sonnet 5.5 model ID and standard input/output list pricing.
-  # Verify against provider pricing before any live cost estimate.
-  # https://platform.claude.com/docs/en/models/overview
+  # Recheck before live runs; pricing can change and excludes cache/data-residency modifiers.
+  # https://platform.claude.com/docs/en/about-claude/pricing
   input_cost_usd_per_million_tokens: 2
   output_cost_usd_per_million_tokens: 10
