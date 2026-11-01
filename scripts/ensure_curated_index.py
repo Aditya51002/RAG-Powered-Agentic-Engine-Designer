@@ -40,7 +40,7 @@ def ensure_curated_index(
     if not persist_directory.is_absolute():
         persist_directory = ROOT / persist_directory
     current_marker = marker_path or persist_directory / "rag_phy_index.json"
-    identity = _index_identity(config)
+    identity = build_index_identity(config)
     store = make_store(persist_directory, vector.collection_name)
     marker_exists = current_marker.exists()
     if marker_exists:
@@ -71,7 +71,8 @@ def ensure_curated_index(
     return True
 
 
-def _index_identity(config: ModelsConfig) -> dict[str, object]:
+def build_index_identity(config: ModelsConfig) -> dict[str, object]:
+    """Return the verified corpus and indexing configuration identity."""
     manifest = json.loads(CORPUS_MANIFEST.read_text(encoding="utf-8"))
     for document in manifest["documents"]:
         source_path = ROOT / document["path"]
@@ -97,6 +98,12 @@ def _index_identity(config: ModelsConfig) -> dict[str, object]:
             "collection_name": vector.collection_name,
         },
     }
+
+
+def index_identity_sha256(identity: dict[str, object]) -> str:
+    """Hash a canonical JSON representation of the verified index identity."""
+    canonical = json.dumps(identity, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 if __name__ == "__main__":

@@ -13,13 +13,23 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from rag_phy.config import load_evaluation_config, load_models_config
-from rag_phy.evaluation.dataset import load_qa_dataset
+from rag_phy.evaluation.dataset import LabeledQACase, load_qa_dataset
 from rag_phy.ingestion import SentenceTransformerEmbedder
-from rag_phy.knowledge.vector_store import ChromaVectorStore
+from rag_phy.knowledge.vector_store import ChromaVectorStore, RetrievalResult
 
 try:
+    from scripts.ensure_curated_index import (
+        build_index_identity,
+        ensure_curated_index,
+        index_identity_sha256,
+    )
     from scripts.validate_qa_dataset import validate_qa_dataset
 except ModuleNotFoundError:
+    from ensure_curated_index import (
+        build_index_identity,
+        ensure_curated_index,
+        index_identity_sha256,
+    )
     from validate_qa_dataset import validate_qa_dataset
 
 
@@ -63,6 +73,52 @@ def calculate_source_metrics(
     }
 
 
+def serialize_case_results(
+    cases: Sequence[LabeledQACase],
+    retrieved_rows: Sequence[Sequence[RetrievalResult]],
+) -> list[dict[str, object]]:
+    """Preserve each retrieved source and distance so aggregate scores are auditable."""
+    if len(cases) != len(retrieved_rows):
+        raise ValueError("Each QA case must have exactly one retrieval result row")
+
+    records: list[dict[str, object]] = []
+    for case, results in zip(cases, retrieved_rows, strict=True):
+        retrieved_sources = {
+            source_id
+            for result in results
+            for source_id in result.source_refs
+            if source_id.strip()
+        }
+        relevant_sources = set(case.relevant_source_ids)
+        overlap = relevant_sources & retrieved_sources
+        records.append(
+            {
+                "case_id": case.id,
+                "answerable": case.answerable,
+                "relevant_source_ids": sorted(relevant_sources),
+                "retrieved_source_ids": sorted(retrieved_sources),
+                "retrieval_empty": not retrieved_sources,
+                "source_precision": (
+                    len(overlap) / len(retrieved_sources)
+                    if case.answerable and retrieved_sources
+                    else 0.0 if case.answerable else None
+                ),
+                "source_recall": (
+                    len(overlap) / len(relevant_sources) if case.answerable else None
+                ),
+                "retrieved_chunks": [
+                    {
+                        "chunk_id": result.chunk_id,
+                        "source_ids": list(result.source_refs),
+                        "cosine_distance": result.distance,
+                    }
+                    for result in results
+                ],
+            }
+        )
+    return records
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / "data/evaluation/retrieval_draft.json")
@@ -76,9 +132,11 @@ def main() -> int:
         return 1
 
     os.chdir(ROOT)
+    index_built_for_run = ensure_curated_index()
     dataset_path = load_evaluation_config(ROOT / "config/evaluation.yaml").qa_dataset_path
     dataset = load_qa_dataset(dataset_path)
     config = load_models_config(ROOT / "config/models.yaml")
+    index_identity = build_index_identity(config)
     embedder = SentenceTransformerEmbedder(config.embedding)
     vector_store = ChromaVectorStore(
         config.vector_store.persist_directory,
@@ -87,12 +145,14 @@ def main() -> int:
     answerability: list[bool] = []
     relevant_sources: list[set[str]] = []
     retrieved_sources: list[set[str]] = []
+    retrieved_rows: list[list[RetrievalResult]] = []
     retrieved_case_count = 0
     for case in dataset.cases:
         results = vector_store.search(
             embedder.embed_query(case.question),
             config.vector_store.retrieval_candidates,
         )
+        retrieved_rows.append(results)
         source_ids = {
             source_id for result in results for source_id in result.source_refs if source_id.strip()
         }
@@ -113,6 +173,9 @@ def main() -> int:
         "dataset_sha256": source_hash,
         "label_review_status": dataset.label_review_status,
         "source_corpus_version": manifest["corpus_version"],
+        "index_identity": index_identity,
+        "index_identity_sha256": index_identity_sha256(index_identity),
+        "index_built_for_run": index_built_for_run,
         "embedding_model": config.embedding.model_name,
         "vector_collection": config.vector_store.collection_name,
         "retrieval_candidates": config.vector_store.retrieval_candidates,
@@ -120,6 +183,7 @@ def main() -> int:
         "answerable_case_count": sum(answerability),
         "unanswerable_case_count": len(answerability) - sum(answerability),
         "cases_with_retrieved_sources": retrieved_case_count,
+        "per_case_results": serialize_case_results(dataset.cases, retrieved_rows),
         **calculate_source_metrics(answerability, relevant_sources, retrieved_sources),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -2,12 +2,966 @@
   "answerable_case_count": 15,
   "case_count": 18,
   "cases_with_retrieved_sources": 18,
-  "created_at_utc": "2026-10-03T17:46:37.833186+00:00",
+  "created_at_utc": "2026-11-01T17:22:30.191145+00:00",
   "dataset_sha256": "913e588b32cd1fd752ec90e64b3ce57ae6ce550552e03909e38de30a1c7f8b90",
   "dataset_version": "0.2.1-draft",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "evidence_type": "retrieval_only_no_generation_no_ragas",
   "label_review_status": "draft",
+  "per_case_results": [
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-001",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "eb500e1f032796c2e378ed36957d0166b8d1ab415be79f181975f8d32befef72",
+          "cosine_distance": 0.24077266454696655,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26"
+          ]
+        },
+        {
+          "chunk_id": "de1bcf88d7f4175d50871ffa0f80fa3837d0b98d8feab848098447a36189b498",
+          "cosine_distance": 0.26361894607543945,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+          ]
+        },
+        {
+          "chunk_id": "911d8d3133772c9d4f48ef4ded1bcc2c4c65cc5f2007c25c373a1cd29b2d28d4",
+          "cosine_distance": 0.27802371978759766,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+          ]
+        },
+        {
+          "chunk_id": "158812e5c594642ec3bef31d1f6daf60d0aa31c2841fa1103fc6058090ac95d5",
+          "cosine_distance": 0.2824760675430298,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "63b85479e4e564c4b56a98d07bef24d4162a7f47517f7898fbcee1459696787f",
+          "cosine_distance": 0.28277069330215454,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+      ],
+      "source_precision": 0.2,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-002",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "77b6f5d8e0cc4291ca1ff00e9d02ba72542d28ecd6dec57a72370f5fc17bfa70",
+          "cosine_distance": 0.30986714363098145,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+          ]
+        },
+        {
+          "chunk_id": "1e6fb558e0e8df0be2d91044fe4dc660ee123351a17d4d54c709854a1515fc3a",
+          "cosine_distance": 0.31005096435546875,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26"
+          ]
+        },
+        {
+          "chunk_id": "13ac4aad747823ac9ebbd44797a22e6567f8390b445ff9b4850e959589481212",
+          "cosine_distance": 0.31223660707473755,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=2"
+          ]
+        },
+        {
+          "chunk_id": "86caab43c32db4906aa1f927457ef387604c5f12ed75c6dee92ceb11c12f3df2",
+          "cosine_distance": 0.3150826692581177,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18"
+          ]
+        },
+        {
+          "chunk_id": "cf474763416eab6e08c7f5994da9994a2e9f4384bf257708f6a2929ee3249758",
+          "cosine_distance": 0.32700932025909424,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=2",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26"
+      ],
+      "source_precision": 0.25,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-003",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "65ae56da3111ded973002fe5da4a202c7f64e2c5fa2dd374598c99013c9471fe",
+          "cosine_distance": 0.2927131652832031,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.3231637477874756,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "77b6f5d8e0cc4291ca1ff00e9d02ba72542d28ecd6dec57a72370f5fc17bfa70",
+          "cosine_distance": 0.34134232997894287,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+          ]
+        },
+        {
+          "chunk_id": "ef10a470702b9d6b8f9b6c77cb5edb6b0a6d2655f1b6d568479e1b78862b8c23",
+          "cosine_distance": 0.34178000688552856,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "17ffad31181d09920c1e12370ab06e4f5bd7c303e95f20471d34ea6e1bac4306",
+          "cosine_distance": 0.34620416164398193,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=21"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=21",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+      ],
+      "source_precision": 0.2,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-004",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "7aa907e079a9e1b4fcf15af85c62f551cc07a588b5e5668adce106f3ecc58c47",
+          "cosine_distance": 0.21714401245117188,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+          ]
+        },
+        {
+          "chunk_id": "73945bee5933c5935fd5db3b52a5b6f151a51d272f446918b0e6395419d4706e",
+          "cosine_distance": 0.23138511180877686,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "b5ab22e955169515c872ddf6965a98a41a11ae6c7a71a23bf28fa2b9d83c75ce",
+          "cosine_distance": 0.2701154947280884,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "7fa5c50d2ddead4639bf4d6080ad79442cc89e4a7be44578c406cce228277df9",
+          "cosine_distance": 0.2744673490524292,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+          ]
+        },
+        {
+          "chunk_id": "121f07bf12bbb6d25589a7a3f6500b33c6cfbf2b354a93bf0c1ee535a827f1a4",
+          "cosine_distance": 0.2858228087425232,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+      ],
+      "source_precision": 0.3333333333333333,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-005",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "c6e5ab1436cb41cca9cf8ef866885f855dbac5b5ef3f639120a70bdf62ea4553",
+          "cosine_distance": 0.246110200881958,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+          ]
+        },
+        {
+          "chunk_id": "048ca471cd83a9866a6dac04cc9937136609fcad75f1867ae1f74b5be0ba1609",
+          "cosine_distance": 0.25804251432418823,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=19"
+          ]
+        },
+        {
+          "chunk_id": "daa279991ee6b738012101a2afeffa4aee2d24ce31fa02f665267ae170adb584",
+          "cosine_distance": 0.26412642002105713,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+          ]
+        },
+        {
+          "chunk_id": "65ae56da3111ded973002fe5da4a202c7f64e2c5fa2dd374598c99013c9471fe",
+          "cosine_distance": 0.26555049419403076,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+          ]
+        },
+        {
+          "chunk_id": "93e764e0eeefa26ea0fb8f586410167c198696eb9aa70f6b35239e462f729aba",
+          "cosine_distance": 0.27590179443359375,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=19",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+      ],
+      "source_precision": 0.25,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-006",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "4530484b5a00b0c9e98b426b05188c5a18fb01ac163e0a9f0bd02329d18fc314",
+          "cosine_distance": 0.18322497606277466,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        },
+        {
+          "chunk_id": "048ca471cd83a9866a6dac04cc9937136609fcad75f1867ae1f74b5be0ba1609",
+          "cosine_distance": 0.22223103046417236,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=19"
+          ]
+        },
+        {
+          "chunk_id": "e11f649379c7745dde50a55eb68042b32dff32501e9e3f9e69159b708704ab0c",
+          "cosine_distance": 0.2474987506866455,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=13"
+          ]
+        },
+        {
+          "chunk_id": "d079cbb5c55a3a621a97b993aaf2efafd732650319acacf2b7057f563fb3670b",
+          "cosine_distance": 0.2515110969543457,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "ef10a470702b9d6b8f9b6c77cb5edb6b0a6d2655f1b6d568479e1b78862b8c23",
+          "cosine_distance": 0.2533262372016907,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=13",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=19"
+      ],
+      "source_precision": 0.2,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-007",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "73945bee5933c5935fd5db3b52a5b6f151a51d272f446918b0e6395419d4706e",
+          "cosine_distance": 0.25123918056488037,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "7aa907e079a9e1b4fcf15af85c62f551cc07a588b5e5668adce106f3ecc58c47",
+          "cosine_distance": 0.27216261625289917,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+          ]
+        },
+        {
+          "chunk_id": "b5ab22e955169515c872ddf6965a98a41a11ae6c7a71a23bf28fa2b9d83c75ce",
+          "cosine_distance": 0.2896392345428467,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "121f07bf12bbb6d25589a7a3f6500b33c6cfbf2b354a93bf0c1ee535a827f1a4",
+          "cosine_distance": 0.29872578382492065,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        },
+        {
+          "chunk_id": "4530484b5a00b0c9e98b426b05188c5a18fb01ac163e0a9f0bd02329d18fc314",
+          "cosine_distance": 0.32842421531677246,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=8"
+      ],
+      "source_precision": 0.3333333333333333,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-008",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "ef10a470702b9d6b8f9b6c77cb5edb6b0a6d2655f1b6d568479e1b78862b8c23",
+          "cosine_distance": 0.21431195735931396,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "121f07bf12bbb6d25589a7a3f6500b33c6cfbf2b354a93bf0c1ee535a827f1a4",
+          "cosine_distance": 0.2373366355895996,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.24032676219940186,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "73945bee5933c5935fd5db3b52a5b6f151a51d272f446918b0e6395419d4706e",
+          "cosine_distance": 0.24173986911773682,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "93e764e0eeefa26ea0fb8f586410167c198696eb9aa70f6b35239e462f729aba",
+          "cosine_distance": 0.26810240745544434,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=10",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+      ],
+      "source_precision": 0.3333333333333333,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-009",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "65ae56da3111ded973002fe5da4a202c7f64e2c5fa2dd374598c99013c9471fe",
+          "cosine_distance": 0.309872031211853,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+          ]
+        },
+        {
+          "chunk_id": "cf474763416eab6e08c7f5994da9994a2e9f4384bf257708f6a2929ee3249758",
+          "cosine_distance": 0.3133869767189026,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17"
+          ]
+        },
+        {
+          "chunk_id": "86caab43c32db4906aa1f927457ef387604c5f12ed75c6dee92ceb11c12f3df2",
+          "cosine_distance": 0.31915247440338135,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.31923699378967285,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "17ffad31181d09920c1e12370ab06e4f5bd7c303e95f20471d34ea6e1bac4306",
+          "cosine_distance": 0.3199455142021179,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=21"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=17",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=21",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+      ],
+      "source_precision": 0.2,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-010",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "82a9bcb894faff28cff1b4a7d6ba4439c4c7bce30baa8870584b202cd36425ef",
+          "cosine_distance": 0.2781538963317871,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "86caab43c32db4906aa1f927457ef387604c5f12ed75c6dee92ceb11c12f3df2",
+          "cosine_distance": 0.2905040979385376,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18"
+          ]
+        },
+        {
+          "chunk_id": "51e45201cc792129ee0c8af350a5317dc76bf18298e1ff414c8d358844fbe4bd",
+          "cosine_distance": 0.3039071559906006,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+          ]
+        },
+        {
+          "chunk_id": "187c4bdebdf3889d33d69b216bed9cfa2ba2b90b130f9ce8d9d0dec046ae1e26",
+          "cosine_distance": 0.31190401315689087,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.32507050037384033,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+      ],
+      "source_precision": 0.25,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-011",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "84f4fbabeb354ab20b7aa0dbb035fa0d23d43d2c96566219ffd2c4858e8f8dd1",
+          "cosine_distance": 0.21329081058502197,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+          ]
+        },
+        {
+          "chunk_id": "51e45201cc792129ee0c8af350a5317dc76bf18298e1ff414c8d358844fbe4bd",
+          "cosine_distance": 0.23522251844406128,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.2625986337661743,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "65ae56da3111ded973002fe5da4a202c7f64e2c5fa2dd374598c99013c9471fe",
+          "cosine_distance": 0.2834346294403076,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+          ]
+        },
+        {
+          "chunk_id": "82a9bcb894faff28cff1b4a7d6ba4439c4c7bce30baa8870584b202cd36425ef",
+          "cosine_distance": 0.29896998405456543,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ],
+      "source_precision": 0.6666666666666666,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-012",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.28437530994415283,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "73945bee5933c5935fd5db3b52a5b6f151a51d272f446918b0e6395419d4706e",
+          "cosine_distance": 0.3072148561477661,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "63b85479e4e564c4b56a98d07bef24d4162a7f47517f7898fbcee1459696787f",
+          "cosine_distance": 0.3185434341430664,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15"
+          ]
+        },
+        {
+          "chunk_id": "51e45201cc792129ee0c8af350a5317dc76bf18298e1ff414c8d358844fbe4bd",
+          "cosine_distance": 0.3273385763168335,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+          ]
+        },
+        {
+          "chunk_id": "82a9bcb894faff28cff1b4a7d6ba4439c4c7bce30baa8870584b202cd36425ef",
+          "cosine_distance": 0.3327309489250183,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=24"
+      ],
+      "source_precision": 0.5,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-013",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "2b36ae6c09103f9c2747ea43965cf69053718b2eb0837dd3245d7bc5950e4f07",
+          "cosine_distance": 0.23322904109954834,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "231ef43d55413e8ea14fa03bb845667cc8a048ae9d195baec45e8f7c63b9e6c9",
+          "cosine_distance": 0.27103638648986816,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=20"
+          ]
+        },
+        {
+          "chunk_id": "ef10a470702b9d6b8f9b6c77cb5edb6b0a6d2655f1b6d568479e1b78862b8c23",
+          "cosine_distance": 0.27539896965026855,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "63b85479e4e564c4b56a98d07bef24d4162a7f47517f7898fbcee1459696787f",
+          "cosine_distance": 0.27578938007354736,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15"
+          ]
+        },
+        {
+          "chunk_id": "daa279991ee6b738012101a2afeffa4aee2d24ce31fa02f665267ae170adb584",
+          "cosine_distance": 0.27582359313964844,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=20",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=9"
+      ],
+      "source_precision": 0.2,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-014",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "158812e5c594642ec3bef31d1f6daf60d0aa31c2841fa1103fc6058090ac95d5",
+          "cosine_distance": 0.2318602204322815,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "de1bcf88d7f4175d50871ffa0f80fa3837d0b98d8feab848098447a36189b498",
+          "cosine_distance": 0.2590676546096802,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+          ]
+        },
+        {
+          "chunk_id": "eb500e1f032796c2e378ed36957d0166b8d1ab415be79f181975f8d32befef72",
+          "cosine_distance": 0.2624894380569458,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26"
+          ]
+        },
+        {
+          "chunk_id": "187c4bdebdf3889d33d69b216bed9cfa2ba2b90b130f9ce8d9d0dec046ae1e26",
+          "cosine_distance": 0.27480101585388184,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "63950f22ee797316583235041ecedc92020cbbfc9b67e44501afe93ca46ee53a",
+          "cosine_distance": 0.2845357060432434,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=1"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=1",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=26",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+      ],
+      "source_precision": 0.25,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": true,
+      "case_id": "nasa-cmc-015",
+      "relevant_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+      ],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "2d634a801f7d32283b8a70d6d242cd5ebeeccb37ff6c25047ac29582091dd1ee",
+          "cosine_distance": 0.21876764297485352,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+          ]
+        },
+        {
+          "chunk_id": "e91a801c0f3c61fa0a171786d78f8f8b68595e8112d02cce64e6c7f543891db7",
+          "cosine_distance": 0.2555539011955261,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+          ]
+        },
+        {
+          "chunk_id": "158812e5c594642ec3bef31d1f6daf60d0aa31c2841fa1103fc6058090ac95d5",
+          "cosine_distance": 0.2679058909416199,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "187c4bdebdf3889d33d69b216bed9cfa2ba2b90b130f9ce8d9d0dec046ae1e26",
+          "cosine_distance": 0.27729928493499756,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "e11f649379c7745dde50a55eb68042b32dff32501e9e3f9e69159b708704ab0c",
+          "cosine_distance": 0.29119718074798584,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=13"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=13",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+      ],
+      "source_precision": 0.25,
+      "source_recall": 1.0
+    },
+    {
+      "answerable": false,
+      "case_id": "nasa-cmc-016",
+      "relevant_source_ids": [],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "b5ab22e955169515c872ddf6965a98a41a11ae6c7a71a23bf28fa2b9d83c75ce",
+          "cosine_distance": 0.3956281542778015,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11"
+          ]
+        },
+        {
+          "chunk_id": "ecea4f62d8624ae0aa6753f0e3c81f4a945b25d3bdddb2ce29d8b2e588314235",
+          "cosine_distance": 0.40474510192871094,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18"
+          ]
+        },
+        {
+          "chunk_id": "79297d8e42abdd152a2adc7060e650caaebb6a929216bf3b7bc0c1f327cac492",
+          "cosine_distance": 0.418687105178833,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23"
+          ]
+        },
+        {
+          "chunk_id": "09b028323c22434f9958a15652c4c2bde27f7b6c668424445386fbdb606c9646",
+          "cosine_distance": 0.4226948022842407,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=4"
+          ]
+        },
+        {
+          "chunk_id": "96fe2e4d639db852e9cb8ee93c2ab4dae6886e06d98a1846784f5bf28f640525",
+          "cosine_distance": 0.4227858781814575,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=16"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=11",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=16",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=18",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=23",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=4"
+      ],
+      "source_precision": null,
+      "source_recall": null
+    },
+    {
+      "answerable": false,
+      "case_id": "nasa-cmc-017",
+      "relevant_source_ids": [],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "8cb0fdcfa78dedb002839515fd15824a2b1e803bf60b2db5a59c0c20f7e6f516",
+          "cosine_distance": 0.32896721363067627,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15"
+          ]
+        },
+        {
+          "chunk_id": "ec86f52a6f14f6a24a4510ee114fa43dee084802533489710ec65271bd9d8ce5",
+          "cosine_distance": 0.3389679789543152,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "82a9bcb894faff28cff1b4a7d6ba4439c4c7bce30baa8870584b202cd36425ef",
+          "cosine_distance": 0.33904385566711426,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14"
+          ]
+        },
+        {
+          "chunk_id": "2b36ae6c09103f9c2747ea43965cf69053718b2eb0837dd3245d7bc5950e4f07",
+          "cosine_distance": 0.3397676944732666,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "e91a801c0f3c61fa0a171786d78f8f8b68595e8112d02cce64e6c7f543891db7",
+          "cosine_distance": 0.339937686920166,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=14",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=15",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=7"
+      ],
+      "source_precision": null,
+      "source_recall": null
+    },
+    {
+      "answerable": false,
+      "case_id": "nasa-cmc-018",
+      "relevant_source_ids": [],
+      "retrieval_empty": false,
+      "retrieved_chunks": [
+        {
+          "chunk_id": "2d634a801f7d32283b8a70d6d242cd5ebeeccb37ff6c25047ac29582091dd1ee",
+          "cosine_distance": 0.3897833824157715,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5"
+          ]
+        },
+        {
+          "chunk_id": "158812e5c594642ec3bef31d1f6daf60d0aa31c2841fa1103fc6058090ac95d5",
+          "cosine_distance": 0.39537733793258667,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "1dc7ce65702d6c11602f25a5df2379411d5397dc7dad82679750ac6c63e2b3fb",
+          "cosine_distance": 0.4009166955947876,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=12"
+          ]
+        },
+        {
+          "chunk_id": "187c4bdebdf3889d33d69b216bed9cfa2ba2b90b130f9ce8d9d0dec046ae1e26",
+          "cosine_distance": 0.4031033515930176,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+          ]
+        },
+        {
+          "chunk_id": "96fe2e4d639db852e9cb8ee93c2ab4dae6886e06d98a1846784f5bf28f640525",
+          "cosine_distance": 0.40462642908096313,
+          "source_ids": [
+            "data/curated/corpus/NASA-TM-2004-213048.pdf#page=16"
+          ]
+        }
+      ],
+      "retrieved_source_ids": [
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=12",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=16",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=5",
+        "data/curated/corpus/NASA-TM-2004-213048.pdf#page=6"
+      ],
+      "source_precision": null,
+      "source_recall": null
+    }
+  ],
   "retrieval_candidates": 5,
   "retrieval_precision_macro_answerable": 0.29444444444444445,
   "retrieval_recall_macro_answerable": 1.0,

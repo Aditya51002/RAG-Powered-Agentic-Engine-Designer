@@ -52,13 +52,20 @@ CMSX-4 or another single-crystal superalloy has not been assigned a maximum serv
 - The table reports sea-level-static (SLS) thrust and dry mass for CJ805-3 (49,817 N; 1,270 kg), CJ610-1 (12,677 N; 181 kg), CJ610-8 (13,789 N; 185 kg), JT4A-3 (70,278 N; 2,277 kg), and JT3C-6 (60,048 N; 1,920 kg). These are the lookup anchors in `config/engine_weight.yaml`; only directly printed N and kg values are used.
 - Scope: historical turbojet hardware data, not a design correlation or a guarantee for a newly designed engine. The implementation linearly interpolates dry mass against candidate net thrust only between the lowest and highest listed SLS thrusts, converts mass to force using the standard-gravity convention below, and refuses extrapolation. Candidate thrust is not necessarily SLS-rated thrust, and interpolation across different engine families is a preliminary approximation requiring validation for a selected engine class.
 
-## NASA-CR-20170000884-J85-MODEL
+## NASA-TM-2016-219147-J85-MODEL
 
-- J. Csank, *Practical Techniques for Modeling Gas Turbine Engine Performance*, NASA/CR-2017-000884 (2017), J85 turbojet example.
+- J. W. Chapman, T. M. Lavelle, and J. S. Litt, *Practical Techniques for Modeling Gas Turbine Engine Performance*, NASA/TM-2016-219147 (October 2016), NTRS document ID 20170000884, J85 turbojet example.
 - Official full text: <https://ntrs.nasa.gov/api/citations/20170000884/downloads/20170000884.pdf>
 - Table 1 reports the modeled J85 takeoff reference point: sea level, standard day, Mach 0, 2,850 lbf net thrust, 0.99 (lbm/hr)/lbf SFC, 16,540 rpm, 44 lbm/s air flow, compressor pressure ratio 7, and turbine inlet temperature 2,100 R. The variant is not named in that table. The paper reports its own calibrated T-MATS model matching the targets within 1%; that result applies to the paper's model, not this repository's cycle model.
 - Appendix Table A1 gives component settings/assumptions for that model, including compressor efficiency 0.87, burner LHV 18,400 BTU/lbm, turbine efficiency 0.85, and 0.01 pps cooling flow. The report states component values were iteratively tuned and assumes shaft-speed-limited operation.
-- Scope: educational model/design-point reference, not a certified engine operating envelope or a set of independent optimizer bounds. The compressor-map analysis has no actual-map data below 80% corrected speed, extends map regions using generic maps, and uses a generic turbine map because an actual turbine map was not found. The paper's flight envelope is based on a Viper Jet use case, and it omits rarely used corners. The repository comparison dataset records the published point in SI using the separately cited NIST conversion factors; use it to diagnose model discrepancy, not to imply calibration or off-design validity.
+- Scope: educational model/design-point reference, not a certified engine operating envelope or a set of independent optimizer bounds. The report explicitly limits its purpose to performance analysis and does not perform cycle design. The compressor-map analysis has no actual-map data below 80% corrected speed, extends map regions using generic maps, and uses a generic turbine map because an actual turbine map was not found. The paper's flight envelope is based on a Viper Jet use case, and it omits rarely used corners. Its authors describe the model as assumption-heavy and intended for student reference or educational material. The repository comparison dataset records the published point in SI using the separately cited NIST conversion factors; use it to diagnose model discrepancy, not to imply calibration or off-design validity.
+
+## NASA-TN-D-3023-J85-MASS
+
+- D. R. Bellman and G. J. Matranga, *Design and Operational Characteristics of a Lunar-Landing Research Vehicle*, NASA Technical Note D-3023 (September 1965), NASA NTRS document ID 19650023948.
+- Official full text: <https://ntrs.nasa.gov/api/citations/19650023948/downloads/19650023948.pdf>
+- In the `Jet-Engine System` section (PDF p. 22), NASA describes the CF700 as a nonafterburning J85 with an aft fan. The note states that the basic engine's thrust rises from 2,800 lbf and its weight from 325 lb (147 kg) to 4,200 lbf and 629 lb (285 kg) after the fan conversion.
+- Scope: the note does not identify the basic J85 variant or define accessory inclusion or a dry-mass convention. The rounded 147 kg value is therefore retained as a reference datum only; it is not treated as interchangeable with the dry-mass anchors in `config/engine_weight.yaml` and is not used by the interpolation estimator.
 
 ## NIST-SP811-UNIT-CONVERSIONS
 

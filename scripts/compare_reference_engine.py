@@ -46,6 +46,17 @@ class ReferencePerformance(BaseModel):
     specific_fuel_consumption_kg_per_n_s: float = Field(gt=0)
 
 
+class PublishedEngineMassReference(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+
+    reported_weight_lbf: float = Field(gt=0)
+    reported_mass_kg: float = Field(gt=0)
+    associated_basic_engine_thrust_lbf: float = Field(gt=0)
+    source_id: str = Field(min_length=1)
+    source_locator: str = Field(min_length=1)
+    interpretation_note: str = Field(min_length=1)
+
+
 class ReferenceEngineCase(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
@@ -56,6 +67,7 @@ class ReferenceEngineCase(BaseModel):
     published_values: PublishedValues
     cycle_input_si: CycleInput
     reference_performance_si: ReferencePerformance
+    published_engine_mass_reference: PublishedEngineMassReference
     conversion_note: str = Field(min_length=1)
 
 
@@ -78,7 +90,8 @@ def compare_reference_engine(
     """Run one comparison only after every dataset source ID resolves in the ledger."""
     case = ReferenceEngineCase.model_validate_json(reference_path.read_text(encoding="utf-8"))
     source_headings = set(SOURCE_HEADING.findall(ledger_path.read_text(encoding="utf-8")))
-    unresolved = sorted(set(case.source_ids) - source_headings)
+    all_source_ids = {*case.source_ids, case.published_engine_mass_reference.source_id}
+    unresolved = sorted(all_source_ids - source_headings)
     if unresolved:
         raise ValueError(f"Reference engine sources missing from ledger: {', '.join(unresolved)}")
 
@@ -100,6 +113,9 @@ def compare_reference_engine(
         "cycle_input_si": case.cycle_input_si.model_dump(mode="json"),
         "conversion_note": case.conversion_note,
         "reference_performance_si": expected.model_dump(mode="json"),
+        "published_engine_mass_reference": case.published_engine_mass_reference.model_dump(
+            mode="json"
+        ),
         "predicted_performance_si": {
             "thrust_n": predicted.thrust_n,
             "specific_fuel_consumption_kg_per_n_s": (

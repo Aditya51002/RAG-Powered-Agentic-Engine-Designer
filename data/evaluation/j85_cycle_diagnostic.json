@@ -22,13 +22,21 @@
   },
   "input_sha256": {
     "physics_config": "a99c91b5ba7b52fcab68fb0603b0203344af773cfcaa54843196501cd7ae9044",
-    "reference_case": "2d495dc686f9893c5cbb8d64679d3ae22818a0fcad46477ed001957f7f7e5a31",
-    "source_ledger": "688a37fb2e56135d6808147c73a91fb4a44f6ee72b1bd1a056d3f1baad64ae8c"
+    "reference_case": "df85545108c3016a1c9d5699471d3987849568e4b12a27d6bacaa96785d49b99",
+    "source_ledger": "29aa883abe2588a6074d971d7584d705671f5ac151e9df963b6ebcb0c404b0d9"
   },
   "interpretation": "The configured generic cycle model and the NASA J85 example use different, partly assumed component models. This point comparison is a discrepancy diagnostic, not independent validation, a calibrated J85 simulation, or an operating envelope.",
   "predicted_performance_si": {
     "specific_fuel_consumption_kg_per_n_s": 2.4543839418312205e-05,
     "thrust_n": 13811.95760849917
+  },
+  "published_engine_mass_reference": {
+    "associated_basic_engine_thrust_lbf": 2800.0,
+    "interpretation_note": "NASA describes a basic J85 engine as 325 lb (147 kg) and 2,800 lbf before discussing the CF700 fan conversion. Variant, accessory scope, and dry-mass basis are unspecified; this datum is recorded for review and is not an estimator anchor.",
+    "reported_mass_kg": 147.0,
+    "reported_weight_lbf": 325.0,
+    "source_id": "NASA-TN-D-3023-J85-MASS",
+    "source_locator": "NASA-TN-D-3023, Jet-Engine System section, PDF p. 22"
   },
   "published_values": {
     "air_mass_flow_lbm_per_second": 44.0,
@@ -48,8 +56,9 @@
   },
   "schema_version": 1,
   "source_ids": [
-    "NASA-CR-20170000884-J85-MODEL",
+    "NASA-TM-2016-219147-J85-MODEL",
+    "NASA-TN-D-3023-J85-MASS",
     "NIST-SP811-UNIT-CONVERSIONS"
   ],
-  "source_locator": "NASA/CR-2017-000884, Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)"
+  "source_locator": "NASA/TM-2016-219147 (NTRS ID 20170000884), Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)"
 }

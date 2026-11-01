@@ -2,10 +2,11 @@
   "schema_version": 1,
   "engine_name": "J85 turbojet example (variant not specified in Table 1)",
   "source_ids": [
-    "NASA-CR-20170000884-J85-MODEL",
+    "NASA-TM-2016-219147-J85-MODEL",
+    "NASA-TN-D-3023-J85-MASS",
     "NIST-SP811-UNIT-CONVERSIONS"
   ],
-  "source_locator": "NASA/CR-2017-000884, Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)",
+  "source_locator": "NASA/TM-2016-219147 (NTRS ID 20170000884), Table 1 (PDF pp. 12-13) and Appendix Table A1 (PDF p. 19)",
   "published_values": {
     "altitude_ft": 0,
     "ambient_temperature_rankine": 518.67,
@@ -29,6 +30,14 @@
   "reference_performance_si": {
     "thrust_n": 12677.431603492423,
     "specific_fuel_consumption_kg_per_n_s": 2.804219585689303e-05
+  },
+  "published_engine_mass_reference": {
+    "reported_weight_lbf": 325,
+    "reported_mass_kg": 147,
+    "associated_basic_engine_thrust_lbf": 2800,
+    "source_id": "NASA-TN-D-3023-J85-MASS",
+    "source_locator": "NASA-TN-D-3023, Jet-Engine System section, PDF p. 22",
+    "interpretation_note": "NASA describes a basic J85 engine as 325 lb (147 kg) and 2,800 lbf before discussing the CF700 fan conversion. Variant, accessory scope, and dry-mass basis are unspecified; this datum is recorded for review and is not an estimator anchor."
   },
   "conversion_note": "SI fields are conversions of the published values using the factors identified by NIST-SP811-UNIT-CONVERSIONS. The source values are rounded; converted digits do not imply additional measurement precision."
 }

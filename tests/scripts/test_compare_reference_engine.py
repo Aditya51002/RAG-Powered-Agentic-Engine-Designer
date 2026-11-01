@@ -17,8 +17,13 @@ def test_reference_engine_comparison_reports_measured_model_discrepancy() -> Non
 
     assert report["comparison_type"] == "diagnostic_only_not_model_validation"
     assert report["source_ids"] == [
-        "NASA-CR-20170000884-J85-MODEL",
+        "NASA-TM-2016-219147-J85-MODEL",
+        "NASA-TN-D-3023-J85-MASS",
         "NIST-SP811-UNIT-CONVERSIONS",
+    ]
+    assert report["published_engine_mass_reference"]["reported_mass_kg"] == 147
+    assert "not an estimator anchor" in report["published_engine_mass_reference"][
+        "interpretation_note"
     ]
     assert report["input_sha256"]["reference_case"]
     assert report["difference"]["thrust_percent"] > 0
@@ -28,7 +33,7 @@ def test_reference_engine_comparison_reports_measured_model_discrepancy() -> Non
 
 def test_reference_engine_comparison_rejects_unresolved_source_ids(tmp_path: Path) -> None:
     ledger = tmp_path / "sources.md"
-    ledger.write_text("## NASA-CR-20170000884-J85-MODEL\n", encoding="utf-8")
+    ledger.write_text("## NASA-TM-2016-219147-J85-MODEL\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="NIST-SP811-UNIT-CONVERSIONS"):
         compare_reference_engine(ledger_path=ledger)

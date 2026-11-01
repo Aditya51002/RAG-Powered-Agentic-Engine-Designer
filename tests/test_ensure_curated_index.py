@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 import scripts.ensure_curated_index as index_startup
-from scripts.ensure_curated_index import ensure_curated_index
+from scripts.ensure_curated_index import ensure_curated_index, index_identity_sha256
 
 
 class _Store:
@@ -97,3 +97,14 @@ def test_corpus_checksum_mismatch_prevents_startup(tmp_path: Path, monkeypatch) 
 
     with pytest.raises(RuntimeError, match="Corpus checksum mismatch"):
         ensure_curated_index(store_factory=lambda *_: _Store(5))
+
+
+def test_index_identity_hash_is_canonical_and_sensitive_to_changes() -> None:
+    identity = {"embedding": {"model_name": "model-a"}, "corpus_version": "sha256:abc"}
+
+    assert index_identity_sha256(identity) == index_identity_sha256(
+        {"corpus_version": "sha256:abc", "embedding": {"model_name": "model-a"}}
+    )
+    assert index_identity_sha256(identity) != index_identity_sha256(
+        {"embedding": {"model_name": "model-b"}, "corpus_version": "sha256:abc"}
+    )
