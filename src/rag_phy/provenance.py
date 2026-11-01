@@ -11,6 +11,9 @@ _HTTP_URL = re.compile(r"https?://[^\s<>\"'`]+", re.IGNORECASE)
 def has_checkable_http_reference(text: str) -> bool:
     """Return whether text contains an HTTP(S) URL with a valid authority and port."""
     for match in _HTTP_URL.finditer(text):
+        trailing_text = text[match.end() :]
+        if re.match(r"\s+[^\s/]+/", trailing_text):
+            continue
         value = match.group().rstrip(".,;:")
         try:
             parsed = urlsplit(value)
