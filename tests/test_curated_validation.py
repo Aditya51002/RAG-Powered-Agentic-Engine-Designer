@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from pathlib import Path
 
 from scripts.evaluate_retrieval import calculate_source_metrics
@@ -35,6 +37,93 @@ def test_validator_rejects_source_ids_missing_from_ledger(tmp_path: Path) -> Non
     )
 
 
+def test_validator_rejects_non_finite_material_temperature(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,nan,screening_only,known-source\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## known-source\n"
+        "- Material evidence status: `screening_only`.\n"
+        "Reference: https://example.org/material.pdf\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_curated_data(csv_path, ledger_path, requirements_path=None)
+
+    assert any("must be finite and positive" in error for error in errors)
+
+
+def test_validator_rejects_rows_with_wrong_field_counts(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    ledger_path.write_text(
+        "## known-source\n"
+        "- Material evidence status: `screening_only`.\n"
+        "Reference: https://example.invalid/material\n",
+        encoding="utf-8",
+    )
+
+    for row, expected_error in (
+        ("TEST,300,screening_only,known-source,unexpected", "unexpected fields"),
+        ("TEST,300,screening_only", "missing one or more CSV fields"),
+    ):
+        csv_path.write_text(
+            "material_name,max_service_temperature_k,evidence_status,source_id\n"
+            f"{row}\n",
+            encoding="utf-8",
+        )
+
+        errors = validate_curated_data(csv_path, ledger_path, requirements_path=None)
+
+        assert any(expected_error in error for error in errors)
+
+
+def test_curated_data_cli_exits_nonzero_for_invalid_row(tmp_path: Path) -> None:
+    root = Path(__file__).parents[1]
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    requirements_path = tmp_path / "requirements.json"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,not-a-temperature,screening_only,TEST-SOURCE\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## TEST-SOURCE\n"
+        "- Material evidence status: `screening_only`.\n"
+        "Reference: https://example.invalid/test-source\n",
+        encoding="utf-8",
+    )
+    requirements_path.write_text(
+        '{"required_material_groups": [{"requirement": "test", '
+        '"any_of_material_names": ["TEST"]}]}',
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(root / "scripts/validate_curated_data.py"),
+            "--csv",
+            str(csv_path),
+            "--ledger",
+            str(ledger_path),
+            "--requirements",
+            str(requirements_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 1
+    assert "max_service_temperature_k must be finite and positive" in completed.stderr
+
+
 def test_validator_rejects_unclassified_material_evidence(tmp_path: Path) -> None:
     csv_path = tmp_path / "material_constraints.csv"
     ledger_path = tmp_path / "sources.md"
@@ -64,7 +153,7 @@ def test_validator_rejects_ledger_heading_without_checkable_reference(tmp_path: 
     )
     ledger_path.write_text(
         "## known-source\n- Material evidence status: `screening_only`.\n"
-        "A bibliographic description without a link.\n",
+        "A malformed citation URL: https://\n",
         encoding="utf-8",
     )
 
@@ -145,6 +234,29 @@ def test_physics_bounds_cli_fails_on_missing_and_stale_register_rows(
     assert exit_code == 1
     assert "no KNOWN_ASSUMPTIONS.md entry" in errors
     assert "config has 100" in errors
+
+
+def test_physics_source_backed_status_requires_real_url_or_doi_syntax(tmp_path: Path) -> None:
+    config_path = tmp_path / "physics.yaml"
+    register_path = tmp_path / "KNOWN_ASSUMPTIONS.md"
+    config_path.write_text("pressure_pa: 100\n", encoding="utf-8")
+
+    for citation_text in (
+        "Claim contains this-ishttp-invalid",
+        "Claim cites DOI: not-a-doi",
+        "Claim includes an incomplete URL: https://",
+    ):
+        register_path.write_text(
+            "## `config/physics_bounds.yaml`\n\n"
+            "| Setting | Config value | Evidence status | Evidence / limitation |\n"
+            "| --- | --- | --- | --- |\n"
+            f"| `pressure_pa` | 100 | source-backed | {citation_text} |\n",
+            encoding="utf-8",
+        )
+
+        errors = validate_physics_bounds(config_path, register_path)
+
+        assert any("needs a citation URL or DOI" in error for error in errors)
 
 
 def test_repository_qa_set_is_tied_to_real_corpus_pages() -> None:

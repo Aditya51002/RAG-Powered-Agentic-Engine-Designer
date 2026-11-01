@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import math
@@ -10,6 +11,8 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+
+from rag_phy.provenance import has_checkable_http_reference
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = ROOT / "data/curated/material_constraints.csv"
@@ -54,6 +57,10 @@ def validate_curated_data(
         errors.append("Curated material CSV contains no data rows")
     seen_materials: set[str] = set()
     for line_number, row in enumerate(rows, start=2):
+        if None in row:
+            errors.append(f"Line {line_number}: row has unexpected fields beyond the CSV header")
+        if any(value is None for key, value in row.items() if key is not None):
+            errors.append(f"Line {line_number}: row is missing one or more CSV fields")
         name = (row.get("material_name") or "").strip()
         evidence_status = (row.get("evidence_status") or "").strip()
         source_id = (row.get("source_id") or "").strip()
@@ -73,7 +80,7 @@ def validate_curated_data(
             errors.append(f"Line {line_number}: source_id is empty")
         elif source_id not in source_sections:
             errors.append(f"Line {line_number}: source_id {source_id!r} has no ledger entry")
-        elif not re.search(r"https?://\S+", source_sections[source_id]):
+        elif not has_checkable_http_reference(source_sections[source_id]):
             errors.append(
                 f"Line {line_number}: source_id {source_id!r} has no checkable HTTP(S) "
                 "reference in its ledger entry"
@@ -148,8 +155,14 @@ def _validate_material_coverage(material_names: set[str], requirements_path: Pat
     return errors
 
 
-def main() -> int:
-    errors = validate_curated_data()
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--csv", type=Path, default=CSV_PATH)
+    parser.add_argument("--ledger", type=Path, default=LEDGER_PATH)
+    parser.add_argument("--requirements", type=Path, default=REQUIREMENTS_PATH)
+    args = parser.parse_args(argv)
+
+    errors = validate_curated_data(args.csv, args.ledger, args.requirements)
     if errors:
         print("Curated data validation failed:", file=sys.stderr)
         for error in errors:

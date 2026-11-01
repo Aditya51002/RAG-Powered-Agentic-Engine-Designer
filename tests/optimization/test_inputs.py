@@ -111,6 +111,21 @@ def test_search_bounds_require_resolved_source_ledger_ids(tmp_path: Path) -> Non
         load_candidate_search_config(search_path, ledger)
 
 
+def test_search_bounds_require_checkable_source_urls(tmp_path: Path) -> None:
+    import yaml
+
+    search_path = tmp_path / "search.yaml"
+    search_path.write_text(yaml.safe_dump(_search_config().model_dump(mode="json")), encoding="utf-8")
+    ledger = tmp_path / "sources.md"
+    ledger.write_text(
+        "## SYNTHETIC-TEST\nReference URL is incomplete: https://\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=r"no checkable HTTP\(S\) reference"):
+        load_candidate_search_config(search_path, ledger)
+
+
 def test_engine_weight_lookup_interpolates_and_refuses_extrapolation() -> None:
     lookup = EngineWeightLookupConfig.model_validate(
         {

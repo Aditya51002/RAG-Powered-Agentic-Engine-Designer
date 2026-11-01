@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+from rag_phy.provenance import has_checkable_http_reference
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "config/physics_bounds.yaml"
@@ -21,6 +24,7 @@ ALLOWED_STATUSES = {
     "unverified-placeholder",
     "numerical-policy",
 }
+DOI_CITATION = re.compile(r"\bdoi:\s*10\.\d{4,9}/[^\s)]+", re.IGNORECASE)
 
 
 def _leaf_values(value: Mapping[str, Any], prefix: str = "") -> dict[str, Any]:
@@ -65,7 +69,9 @@ def _assumption_rows(markdown: str) -> tuple[dict[str, tuple[str, str]], list[st
             errors.append(f"Line {line_number}: evidence/limitation is empty for {path!r}")
         if cells[2] not in ALLOWED_STATUSES:
             errors.append(f"Line {line_number}: unsupported evidence status {cells[2]!r}")
-        elif cells[2] == "source-backed" and "http" not in cells[3].lower() and "doi:" not in cells[3].lower():
+        elif cells[2] == "source-backed" and not (
+            has_checkable_http_reference(cells[3]) or DOI_CITATION.search(cells[3])
+        ):
             errors.append(f"Line {line_number}: source-backed setting {path!r} needs a citation URL or DOI")
         elif cells[2] == "unverified-placeholder" and "pending review" not in cells[3].lower():
             errors.append(f"Line {line_number}: placeholder {path!r} must say it is pending review")

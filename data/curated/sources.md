@@ -67,6 +67,14 @@ CMSX-4 or another single-crystal superalloy has not been assigned a maximum serv
 - Appendix Table A1 gives component settings/assumptions for that model, including compressor efficiency 0.87, burner LHV 18,400 BTU/lbm, turbine efficiency 0.85, and 0.01 pps cooling flow. The report states component values were iteratively tuned and assumes shaft-speed-limited operation.
 - Scope: educational model/design-point reference, not a certified engine operating envelope or a set of independent optimizer bounds. The report explicitly limits its purpose to performance analysis and does not perform cycle design. The compressor-map analysis has no actual-map data below 80% corrected speed, extends map regions using generic maps, and uses a generic turbine map because an actual turbine map was not found. The paper's flight envelope is based on a Viper Jet use case, and it omits rarely used corners. Its authors describe the model as assumption-heavy and intended for student reference or educational material. The repository comparison dataset records the published point in SI using the separately cited NIST conversion factors; use it to diagnose model discrepancy, not to imply calibration or off-design validity.
 
+## NASA-TM-X-3515-J85-COMPRESSOR-MAP
+
+- E. J. Milner, *Analytical Prediction of the Performance and Stability of a J85-13 Compressor with Distorted Inlet Flow*, NASA Technical Memorandum X-3515 / E-8887 (May 1977), NTRS document ID 19770017195.
+- NASA NTRS catalog record: <https://ntrs.nasa.gov/citations/19770017195>.
+- Official full text: <https://ntrs.nasa.gov/api/citations/19770017195/downloads/19770017195.pdf>.
+- The report's compressor model is based on an experimentally obtained clean-inlet overall performance map for the J85-13 from altitude-chamber tests and compares predicted surge behavior against experimental results.
+- Scope: this is evidence about the J85-13 compressor map and tested inlet-distortion conditions. It does not establish an engine-wide flight envelope, turbine-inlet-temperature limit, mission profile, or a feasible independent box for all `DesignCandidate` parameters. Map-derived limits would require extracting and reviewing the actual map and matching it with the turbine, combustor, and nozzle model before use in optimizer bounds.
+
 ## NASA-TN-D-3023-J85-MASS
 
 - D. R. Bellman and G. J. Matranga, *Design and Operational Characteristics of a Lunar-Landing Research Vehicle*, NASA Technical Note D-3023 (September 1965), NASA NTRS document ID 19650023948.

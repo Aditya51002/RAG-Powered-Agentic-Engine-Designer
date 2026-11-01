@@ -85,7 +85,7 @@ def _render_run(client: RAGPhyAPIClient, run_id: str) -> None:
                 }
                 for point in points
             ]
-            st.dataframe(rows, use_container_width=True)
+            st.dataframe(rows, width="stretch")
             st.scatter_chart(
                 rows,
                 x="specific_fuel_consumption_kg_per_n_s",

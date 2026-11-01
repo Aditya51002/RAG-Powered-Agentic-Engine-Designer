@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+
+from rag_phy.provenance import has_checkable_http_reference
 
 
 class LoggingConfig(BaseModel):
@@ -573,17 +576,36 @@ def _load_yaml_mapping(path: str | Path) -> dict[str, Any]:
 
 
 def _validate_source_ids(source_ids: Any, ledger_path: str | Path) -> None:
-    """Require every configuration source ID to have a heading in the source ledger."""
+    """Require every configuration source ID to resolve to a cited ledger section."""
     ledger = Path(ledger_path)
     text = ledger.read_text(encoding="utf-8")
-    headings = {
-        line[3:].strip()
-        for line in text.splitlines()
-        if line.startswith("## ")
-    }
-    missing = sorted(set(source_ids) - headings)
+    sections = _source_ledger_sections(text)
+    requested_ids = set(source_ids)
+    missing = sorted(requested_ids - sections.keys())
     if missing:
         raise ValueError(f"Unresolved source IDs in {ledger}: {', '.join(missing)}")
+    uncited = sorted(
+        source_id
+        for source_id in requested_ids
+        if not has_checkable_http_reference(sections[source_id])
+    )
+    if uncited:
+        raise ValueError(
+            f"Source IDs have no checkable HTTP(S) reference in {ledger}: {', '.join(uncited)}"
+        )
+
+
+def _source_ledger_sections(text: str) -> dict[str, str]:
+    """Split ledger text by level-two source headings."""
+    headings = list(re.finditer(r"^## (.+?)\s*$", text, re.MULTILINE))
+    return {
+        heading.group(1): text[
+            heading.end() : headings[index + 1].start()
+            if index + 1 < len(headings)
+            else None
+        ]
+        for index, heading in enumerate(headings)
+    }
 
 
 __all__ = [

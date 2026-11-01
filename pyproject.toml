@@ -42,7 +42,7 @@ evaluation = [
     "matplotlib>=3.8,<4",
 ]
 app = [
-    "streamlit>=1.35,<2",
+    "streamlit>=1.49,<2",
     "requests>=2.31,<3",
 ]
 llm = [

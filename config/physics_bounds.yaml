@@ -15,8 +15,10 @@ numerics:
   root_pressure_tolerance_pa: 0.1
   root_max_iterations: 128
 
-# Source for the benchmark conditions/efficiencies and worked station outputs:
-# IIT Bombay, NPTEL Introduction to Aerospace Propulsion, Lecture 11, Problem 1.
+# Source for the one-point benchmark conditions/efficiencies and worked station outputs:
+# IIT Bombay, NPTEL Jet Aircraft Propulsion, Lecture 11, Problem 1 (Tute-2).
+# Problem inputs are on PDF p. 3; the worked solution is on pp. 5-11.
+# Official course page: https://nptel.ac.in/courses/101101002
 # https://archive.nptel.ac.in/content/storage2/courses/101101002/downloads/Lect-11.pdf
 # Representative kerosene specific energy: NASA/CR-20210000284, p. 37 (printed p. 40),
 # uses 43 MJ/kg and identifies LHV as the combustion-fuel convention. This is a model

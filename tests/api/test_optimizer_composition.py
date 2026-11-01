@@ -83,7 +83,11 @@ def test_optimizer_factory_composes_from_sourced_ranges_and_injected_adapters(
     search_path.write_text(yaml.safe_dump(_candidate_search_data()), encoding="utf-8")
     source_ledger = tmp_path / "sources.md"
     project_ledger = Path("data/curated/sources.md").read_text(encoding="utf-8")
-    source_ledger.write_text(f"{project_ledger}\n## TEST-BOUNDS\n", encoding="utf-8")
+    source_ledger.write_text(
+        f"{project_ledger}\n## TEST-BOUNDS\n"
+        "Synthetic test provenance only: https://example.invalid/test-bounds\n",
+        encoding="utf-8",
+    )
     calls: list[str] = []
     trace_paths: list[Path] = []
 
@@ -197,7 +201,11 @@ def test_real_optimizer_api_lifecycle_with_external_services_faked(tmp_path: Pat
     )
     source_ledger = tmp_path / "sources.md"
     project_ledger = Path("data/curated/sources.md").read_text(encoding="utf-8")
-    source_ledger.write_text(f"{project_ledger}\n## TEST-BOUNDS\n", encoding="utf-8")
+    source_ledger.write_text(
+        f"{project_ledger}\n## TEST-BOUNDS\n"
+        "Synthetic test provenance only: https://example.invalid/test-bounds\n",
+        encoding="utf-8",
+    )
 
     def make_store(path: Path, collection: str) -> _FakeVectorStore:
         return _FakeVectorStore(
