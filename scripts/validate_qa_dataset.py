@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +42,20 @@ def validate_qa_dataset(
     ):
         errors.append("QA source_corpus_version does not match the corpus manifest")
 
+    return errors + validate_source_references(
+        ((case.id, case.relevant_source_ids) for case in dataset.cases),
+        manifest,
+        root,
+    )
+
+
+def validate_source_references(
+    case_sources: Iterable[tuple[str, Sequence[str]]],
+    manifest: dict[str, Any],
+    root: Path = ROOT,
+) -> list[str]:
+    """Validate cited source identifiers and page numbers against corpus files."""
+    errors: list[str] = []
     page_counts: dict[str, int] = {}
     manifest_docs = manifest.get("documents")
     if not isinstance(manifest_docs, list) or not manifest_docs:
@@ -64,21 +79,21 @@ def validate_qa_dataset(
         except (OSError, ValueError) as exc:
             errors.append(f"Cannot validate corpus document {relative_path}: {exc}")
 
-    for case in dataset.cases:
-        for source_id in case.relevant_source_ids:
+    for case_id, source_ids in case_sources:
+        for source_id in source_ids:
             matching_prefix = next(
                 (prefix for prefix in page_counts if source_id.startswith(f"{prefix}#page=")),
                 None,
             )
             if matching_prefix is None:
-                errors.append(f"Case {case.id}: source ID does not resolve to the corpus: {source_id}")
+                errors.append(f"Case {case_id}: source ID does not resolve to the corpus: {source_id}")
                 continue
             try:
                 page_number = int(source_id.removeprefix(f"{matching_prefix}#page="))
                 if not 1 <= page_number <= page_counts[matching_prefix]:
                     raise ValueError
             except ValueError:
-                errors.append(f"Case {case.id}: source page is outside the corpus: {source_id}")
+                errors.append(f"Case {case_id}: source page is outside the corpus: {source_id}")
     return errors
 
 

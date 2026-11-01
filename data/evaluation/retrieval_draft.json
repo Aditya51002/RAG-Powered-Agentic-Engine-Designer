@@ -2,11 +2,42 @@
   "answerable_case_count": 15,
   "case_count": 18,
   "cases_with_retrieved_sources": 18,
-  "created_at_utc": "2026-11-01T17:22:30.191145+00:00",
+  "created_at_utc": "2026-11-01T17:25:32.855174+00:00",
   "dataset_sha256": "913e588b32cd1fd752ec90e64b3ce57ae6ce550552e03909e38de30a1c7f8b90",
   "dataset_version": "0.2.1-draft",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "evidence_type": "retrieval_only_no_generation_no_ragas",
+  "index_built_for_run": true,
+  "index_identity": {
+    "chunking": {
+      "chunk_size_characters": 1800,
+      "overlap_characters": 200
+    },
+    "corpus_version": "sha256:2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
+    "documents": [
+      {
+        "citation": "NASA/TM-2004-213048 (2004)",
+        "path": "data/curated/corpus/NASA-TM-2004-213048.pdf",
+        "sha256": "2857bdd693100d1cd3572594492080d73899827ef838405921eeeb60062529d6",
+        "source_id_prefix": "data/curated/corpus/NASA-TM-2004-213048.pdf",
+        "title": "SiC/SiC Composites for 1200 C and Above",
+        "url": "https://ntrs.nasa.gov/api/citations/20040191405/downloads/20040191405.pdf"
+      }
+    ],
+    "embedding": {
+      "expected_dimension": 384,
+      "max_sequence_tokens": 512,
+      "model_name": "BAAI/bge-small-en-v1.5",
+      "normalize_embeddings": true,
+      "provider": "sentence-transformers",
+      "query_instruction": "Represent this sentence for searching relevant passages: "
+    },
+    "vector_store": {
+      "collection_name": "rag_phy_documents",
+      "provider": "chroma"
+    }
+  },
+  "index_identity_sha256": "89c69dbd690e659cc45050ca3f42c7106c3f4642885207c91469f3bc10513601",
   "label_review_status": "draft",
   "per_case_results": [
     {
