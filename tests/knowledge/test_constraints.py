@@ -59,7 +59,8 @@ def test_material_record_without_source_is_rejected(tmp_path: Path) -> None:
     """Reject numeric constraints without a provenance identifier."""
     csv_path = tmp_path / "missing_source.csv"
     csv_path.write_text(
-        "material_name,max_service_temperature_k,source_id\nTEST,1100,\n",
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,1100,qualified_allowable,\n",
         encoding="utf-8",
     )
 
@@ -71,7 +72,7 @@ def test_empty_material_table_is_rejected(tmp_path: Path) -> None:
     """Do not treat an empty structured-data file as a populated constraint store."""
     csv_path = tmp_path / "empty.csv"
     csv_path.write_text(
-        "material_name,max_service_temperature_k,source_id\n",
+        "material_name,max_service_temperature_k,evidence_status,source_id\n",
         encoding="utf-8",
     )
 

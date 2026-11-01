@@ -2,21 +2,26 @@
 
 This ledger is the provenance key for `material_constraints.csv`. The numeric kelvin
 values are unit conversions from the cited source values; they are not additional test data.
-It also records source IDs used by optimizer inputs under `config/`.
+It also records source IDs used by optimizer inputs under `config/`. Every current material
+record is classified `screening_only`: none of the cited documents alone supplies a
+qualified component allowable for this design model.
 
 The document used for the draft QA corpus is independently identified and checksummed in
 `corpus/manifest.json`; the manifest source IDs use repository-relative PDF paths and page numbers.
 
 ## NASA-CR-19690012409
 
-- NASA Contractor Report, *An Advanced Small Gas Turbine Engine for Aircraft Auxiliary Power Units*, report 19690012409.
+- R. Cohen, W. K. Gilroy, and W. B. Spencer, *High Performance Turboalternator and Associated Hardware. 1 - Design of Turboalternator*, NASA Contractor Report NASA-CR-1290 / PWA-3070-VOL-1, NTRS document ID 19690012409 (1969).
+- Material evidence status: `screening_only`.
+- NASA NTRS catalog record: <https://ntrs.nasa.gov/citations/19690012409>.
 - Official full text: <https://ntrs.nasa.gov/api/citations/19690012409/downloads/19690012409.pdf>
-- Relevant statement: the report identifies PWA 1010 (Inconel 718), notes good strength up to 1300 deg F, and discusses an engine turbine inlet temperature of 1225 deg F. 1300 deg F converts to 977.594 K.
-- Scope: this is a historical alloy/application statement, not a modern design allowable. The `bare` and `cooled` names are two application aliases for the same alloy-level metal-temperature screen. Cooling hardware does not change the material value; this application currently has no blade-metal model.
+- Relevant statement (PDF p. 30): the report identifies PWA 1010 (Inconel 718) for the turbine wheel, reports good strength up to 1300 deg F, and gives a design turbine-inlet temperature of 1225 deg F. 1300 deg F converts to 977.594 K.
+- Scope: this is a historical turboalternator alloy/application statement, not a modern design allowable. The `bare` and `cooled` names are two application aliases for the same alloy-level temperature screen. Cooling hardware does not change the material value; this application currently has no blade-metal model.
 
 ## CARPENTER-TI6AL4V
 
 - Carpenter Technology, Ti 6Al-4V alloy finder, manufacturer recommendation.
+- Material evidence status: `screening_only`.
 - Official page: <https://www.carpentertechnology.com/alloy-finder/Ti-6Al-4V>
 - Relevant statement: service temperatures up to approximately 660 deg F (350 deg C). 350 deg C converts to 623.15 K.
 - Scope: manufacturer recommendation for the alloy generally; it does not qualify a specific product form, stress, environment, or life.
@@ -24,6 +29,7 @@ The document used for the draft QA corpus is independently identified and checks
 ## NASA-TM-2006-20060054003
 
 - NASA Technical Memorandum 2006-20060054003, *Advanced SiC/SiC Ceramic Composite Systems Developed for High-Temperature Structural Applications*.
+- Material evidence status: `screening_only`.
 - Official full text: <https://ntrs.nasa.gov/api/citations/20060054003/downloads/20060054003.pdf>
 - Relevant evidence: NASA reports upper-use temperature for the specific SiC/SiC systems A and B at 1450 deg C. 1450 deg C converts to 1723.15 K.
 - Scope: this is a specific NASA system-level upper-use value, not a safe maximum for all CMCs or an allowable design limit. Do not generalize it beyond the named system or ignore stress, exposure duration, environment, coating, and life requirements.
@@ -31,6 +37,7 @@ The document used for the draft QA corpus is independently identified and checks
 ## SEAH-SC180
 
 - SeAH Superalloy Technologies, SC 180 cast alloy product page: <https://www.seahsuperalloys.com/superalloys/sc-180>
+- Material evidence status: `screening_only`.
 - The manufacturer identifies SC 180 as a single-crystal nickel-base alloy used for high-pressure turbine blades and describes yield, tensile, and creep-rupture properties at temperatures up to 1000 deg C. `material_constraints.csv` converts that stated temperature to 1273.15 K.
 - Scope: this is a manufacturer-stated temperature for alloy properties, used as a preliminary material screening threshold. It is not a component allowable, safe service limit, life-qualified design value, or substitute for stress-, orientation-, coating-, environment-, and duration-specific data. The current model also compares gas temperature rather than predicted blade-metal temperature.
 

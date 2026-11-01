@@ -179,8 +179,22 @@ def test_real_optimizer_api_lifecycle_with_external_services_faked(tmp_path: Pat
         "strategy": "uniform",
         "source_ids": ["TEST-BOUNDS"],
     }
+    search_data["hot_section_materials"] = [
+        {"name": "SYNTHETIC-ALLOY", "source_id": "TEST-BOUNDS"}
+    ]
     search_path = tmp_path / "candidate_search.yaml"
     search_path.write_text(yaml.safe_dump(search_data), encoding="utf-8")
+    material_path = tmp_path / "material_constraints.csv"
+    material_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "SYNTHETIC-ALLOY,1400,qualified_allowable,TEST-BOUNDS\n",
+        encoding="utf-8",
+    )
+    knowledge_config_path = tmp_path / "knowledge.yaml"
+    knowledge_config_path.write_text(
+        yaml.safe_dump({"material_constraints_csv_path": str(material_path)}),
+        encoding="utf-8",
+    )
     source_ledger = tmp_path / "sources.md"
     project_ledger = Path("data/curated/sources.md").read_text(encoding="utf-8")
     source_ledger.write_text(f"{project_ledger}\n## TEST-BOUNDS\n", encoding="utf-8")
@@ -200,6 +214,7 @@ def test_real_optimizer_api_lifecycle_with_external_services_faked(tmp_path: Pat
     factory = make_optimizer_factory(
         candidate_search_config_path=search_path,
         source_ledger_path=source_ledger,
+        knowledge_config_path=knowledge_config_path,
         llm_client_factory=lambda config: _FakeLLM(),
         embedder_factory=_FakeEmbedder,
         vector_store_factory=make_store,
@@ -225,10 +240,10 @@ def test_real_optimizer_api_lifecycle_with_external_services_faked(tmp_path: Pat
 
     assert run.json()["status"] == "completed"
     assert run.json()["result"]["accepted_candidate"]["hot_section_material_name"] == (
-        "SC 180 single-crystal superalloy"
+        "SYNTHETIC-ALLOY"
     )
     assert run.json()["result"]["performance"]["thrust_n"] >= 12677
-    assert "SEAH-SC180" in run.json()["result"]["cited_sources"]
+    assert "TEST-BOUNDS" in run.json()["result"]["cited_sources"]
     assert "synthetic:test-retrieval" in run.json()["result"]["cited_sources"]
     assert trace.status_code == 200
     assert trace.json()

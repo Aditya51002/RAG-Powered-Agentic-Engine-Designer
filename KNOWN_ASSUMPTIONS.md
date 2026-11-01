@@ -45,10 +45,11 @@ review is still required for the cycle-design domain.
 
 See `data/curated/sources.md`. In particular, the SiC/SiC CMC row applies to NASA's
 specific System A, not generic CMCs, and the Inconel 718 values are a historical
-alloy/application limit. The current critique compares turbine-inlet gas temperature directly with these material
-screens. It does not calculate blade metal temperature or cooling effectiveness, and may
-reject feasible cooled designs. The duplicate bare/cooled Inconel entries intentionally
-use one material-level temperature value; they do not model cooling.
+alloy/application screening value. The current critique compares turbine-inlet gas temperature directly with these material
+screens. The CSV marks them `screening_only`, and code cannot use them to accept a design as
+material-feasible. It does not calculate blade metal temperature or cooling effectiveness,
+and may reject feasible cooled designs. The duplicate bare/cooled Inconel entries
+intentionally use one material-level temperature value; they do not model cooling.
 
 SC 180 now has a manufacturer-sourced screening value in the curated table. The stated
 1000 C property-temperature claim is not a qualified allowable or validated service limit;

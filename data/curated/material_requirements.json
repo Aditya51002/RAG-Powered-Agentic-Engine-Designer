@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "required_material_groups": [
+    {
+      "requirement": "Inconel 718 bare",
+      "any_of_material_names": ["Inconel 718 (bare)"]
+    },
+    {
+      "requirement": "Inconel 718 cooled",
+      "any_of_material_names": ["Inconel 718 (cooled)"]
+    },
+    {
+      "requirement": "single-crystal superalloy",
+      "any_of_material_names": ["CMSX-4", "SC 180 single-crystal superalloy"]
+    },
+    {
+      "requirement": "Ti-6Al-4V",
+      "any_of_material_names": ["Ti-6Al-4V"]
+    },
+    {
+      "requirement": "ceramic matrix composite",
+      "any_of_material_names": ["NASA SiC/SiC System A CMC"]
+    }
+  ]
+}

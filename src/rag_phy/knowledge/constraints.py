@@ -8,7 +8,7 @@ import math
 from bisect import bisect_left
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Literal, cast
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,11 @@ class ConstraintNotFoundError(LookupError):
 
 @dataclass(frozen=True)
 class MaterialConstraint:
-    """One sourced material rating; service temperature is in kelvin."""
+    """One sourced material temperature record, with explicit evidence qualification."""
 
     material_name: str
     max_service_temperature_k: float
+    evidence_status: Literal["qualified_allowable", "screening_only"]
     source_id: str
 
 
@@ -34,7 +35,7 @@ class MaterialConstraintStore:
     """O(1) exact material index plus sorted temperature range index."""
 
     REQUIRED_COLUMNS = frozenset(
-        {"material_name", "max_service_temperature_k", "source_id"}
+        {"material_name", "max_service_temperature_k", "evidence_status", "source_id"}
     )
 
     def __init__(self, records: Iterable[MaterialConstraint]) -> None:
@@ -47,6 +48,10 @@ class MaterialConstraintStore:
             if not record.source_id.strip():
                 raise ConstraintDataError(
                     f"Material constraint {record.material_name!r} requires a source ID"
+                )
+            if record.evidence_status not in {"qualified_allowable", "screening_only"}:
+                raise ConstraintDataError(
+                    f"Material {record.material_name!r} has an unsupported evidence status"
                 )
             if not math.isfinite(record.max_service_temperature_k) or record.max_service_temperature_k <= 0:
                 raise ConstraintDataError(
@@ -65,7 +70,7 @@ class MaterialConstraintStore:
         """Load sourced material ratings from a CSV with the documented column schema.
 
         Args:
-            path: Curated CSV with material_name, max_service_temperature_k, and source_id.
+            path: Curated CSV with temperature, evidence status, and source provenance columns.
 
         Returns:
             Indexed material constraint store.
@@ -89,14 +94,21 @@ class MaterialConstraintStore:
                 for line_number, row in enumerate(reader, start=2):
                     try:
                         material_name = (row["material_name"] or "").strip()
+                        evidence_status = (row["evidence_status"] or "").strip()
                         source_id = (row["source_id"] or "").strip()
-                        if not material_name or not source_id:
-                            raise ValueError("Material name and source ID are required")
+                        if not material_name or not source_id or not evidence_status:
+                            raise ValueError("Material name, evidence status, and source ID are required")
+                        if evidence_status not in {"qualified_allowable", "screening_only"}:
+                            raise ValueError(f"Unsupported evidence status {evidence_status!r}")
                         records.append(
                             MaterialConstraint(
                                 material_name=material_name,
                                 max_service_temperature_k=float(
                                     row["max_service_temperature_k"]
+                                ),
+                                evidence_status=cast(
+                                    Literal["qualified_allowable", "screening_only"],
+                                    evidence_status,
                                 ),
                                 source_id=source_id,
                             )

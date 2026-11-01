@@ -67,12 +67,13 @@ class CritiqueAgent:
         self._config = config
 
     def critique(self, candidate: DesignCandidate, performance: CycleResult) -> CritiqueResult:
-        """Return validity from direct constraint comparisons plus cited retrieved evidence.
+        """Return validity from qualified constraints plus cited retrieved evidence.
 
         Assumption: until a blade-metal thermal model exists, turbine inlet gas temperature
         is compared directly with the selected material's maximum service temperature as a
         screening proxy. It is not a metal-temperature prediction and cannot establish
-        thermal safety; it may reject feasible cooled turbine designs.
+        thermal safety; it may reject feasible cooled turbine designs. A material row marked
+        screening-only always prevents a feasible verdict, even below its recorded threshold.
 
         Args:
             candidate: Candidate cycle point; temperatures K, pressure Pa, flow kg/s.
@@ -94,13 +95,23 @@ class CritiqueAgent:
             )
             source_ids.append(material.source_id)
             limit_k = material.max_service_temperature_k
+            if material.evidence_status != "qualified_allowable":
+                violations.append(
+                    f"{material.material_name} has screening-only temperature evidence; "
+                    "it cannot establish design feasibility"
+                )
             if candidate.turbine_inlet_temperature_k > limit_k:
                 normalized_severity = (
                     candidate.turbine_inlet_temperature_k - limit_k
                 ) / limit_k
+                threshold_label = (
+                    "maximum service temperature"
+                    if material.evidence_status == "qualified_allowable"
+                    else "recorded temperature threshold"
+                )
                 violations.append(
                     f"Turbine inlet temperature {candidate.turbine_inlet_temperature_k:g} K "
-                    f"exceeds {material.material_name} maximum service temperature "
+                    f"exceeds {material.material_name} {threshold_label} "
                     f"{limit_k:g} K (source: {material.source_id})"
                 )
         except ConstraintNotFoundError:

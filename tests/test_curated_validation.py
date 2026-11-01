@@ -20,12 +20,98 @@ def test_validator_rejects_source_ids_missing_from_ledger(tmp_path: Path) -> Non
     csv_path = tmp_path / "material_constraints.csv"
     ledger_path = tmp_path / "sources.md"
     csv_path.write_text(
-        "material_name,max_service_temperature_k,source_id\nTEST,300,missing-source\n",
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,300,screening_only,missing-source\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## known-source\n- Material evidence status: `screening_only`.\n",
+        encoding="utf-8",
+    )
+
+    assert any(
+        "missing-source" in error
+        for error in validate_curated_data(csv_path, ledger_path, requirements_path=None)
+    )
+
+
+def test_validator_rejects_unclassified_material_evidence(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,300,unspecified,known-source\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## known-source\n- Material evidence status: `screening_only`.\n",
+        encoding="utf-8",
+    )
+
+    assert any(
+        "evidence_status must be one of" in error
+        for error in validate_curated_data(csv_path, ledger_path, requirements_path=None)
+    )
+
+
+def test_validator_rejects_ledger_heading_without_checkable_reference(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,300,screening_only,known-source\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## known-source\n- Material evidence status: `screening_only`.\n"
+        "A bibliographic description without a link.\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_curated_data(csv_path, ledger_path, requirements_path=None)
+
+    assert any("no checkable HTTP(S) reference" in error for error in errors)
+
+
+def test_validator_rejects_csv_evidence_status_not_recorded_for_source(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "TEST,300,qualified_allowable,known-source\n",
+        encoding="utf-8",
+    )
+    ledger_path.write_text(
+        "## known-source\n"
+        "- Material evidence status: `screening_only`.\n"
+        "Reference: https://example.org/material.pdf\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_curated_data(csv_path, ledger_path, requirements_path=None)
+
+    assert any("conflicts with source ledger status" in error for error in errors)
+
+
+def test_validator_enforces_declarative_material_coverage(tmp_path: Path) -> None:
+    csv_path = tmp_path / "material_constraints.csv"
+    ledger_path = tmp_path / "sources.md"
+    requirements_path = tmp_path / "requirements.json"
+    csv_path.write_text(
+        "material_name,max_service_temperature_k,evidence_status,source_id\n"
+        "Only Material,300,screening_only,known-source\n",
         encoding="utf-8",
     )
     ledger_path.write_text("## known-source\nA documented source.\n", encoding="utf-8")
+    requirements_path.write_text(
+        '{"required_material_groups": [{"requirement": "CMC", '
+        '"any_of_material_names": ["CMC A", "CMC B"]}]}',
+        encoding="utf-8",
+    )
 
-    assert any("missing-source" in error for error in validate_curated_data(csv_path, ledger_path))
+    errors = validate_curated_data(csv_path, ledger_path, requirements_path)
+
+    assert any("Required material coverage 'CMC' is missing" in error for error in errors)
 
 
 def test_repository_physics_settings_have_current_evidence_dispositions() -> None:

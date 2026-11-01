@@ -126,6 +126,28 @@ def test_within_limit_requires_retrieved_citation_to_be_valid() -> None:
     assert critique.constraint_violations == ()
 
 
+def test_screening_only_material_evidence_cannot_establish_validity() -> None:
+    root = Path(__file__).parents[2]
+    csv_path = root / "data" / "curated" / "material_constraints.csv"
+    prompts = load_agent_prompts_config(root / "config" / "agent_prompts.yaml")
+    agent = CritiqueAgent(
+        constraint_store=MaterialConstraintStore.from_csv(csv_path),
+        vector_store=FixedVectorStore(_retrieved()),
+        embedder=FixedEmbedder(),
+        explainer=FixedExplainer(),
+        models_config=load_models_config(root / "config" / "models.yaml"),
+        config=prompts.critique_agent,
+    )
+
+    critique = agent.critique(
+        _candidate(material="SC 180 single-crystal superalloy", tit_k=1000),
+        _performance(),
+    )
+
+    assert not critique.valid
+    assert any("screening-only temperature evidence" in item for item in critique.constraint_violations)
+
+
 def test_missing_material_fails_closed_even_with_literature() -> None:
     critique = _agent(_retrieved()).critique(
         _candidate(material="UNKNOWN_TEST_MATERIAL"), _performance()
